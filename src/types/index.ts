@@ -1,53 +1,73 @@
-// ─── 内容类型 ─────────────────────────────────────────────────────────────────
+export type Lang = 'en' | 'zh'
+export type ViewMode = 'card' | 'list'
 
-export type ContentType = 'note' | 'music' | 'video' | 'model' | 'honor'
-
-export type NoteCategory =
-  | 'mathematics'
-  | 'engineering'
-  | 'cs'
-  | 'physics'
-  | 'chemistry'
-  | 'other'
-
-export interface NoteCard {
+export interface NoteCategory {
   id: string
-  type: 'note'
+  name_en: string
+  name_zh: string
+  icon: string
+  sort_order: number
+}
+
+export interface Note {
+  id: string
   title_en: string
   title_zh: string
   desc_en: string
   desc_zh: string
-  category: NoteCategory
-  tags: string[]
-  /** R2 file key，可能是 .pdf 或 .md */
+  category_id: string
+  tags: string        // JSON string array
   file_key: string | null
-  file_type: 'pdf' | 'markdown' | null
+  file_type: 'pdf' | 'markdown' | 'txt' | null
   created_at: string
   updated_at: string
 }
 
-export interface MusicCard {
+export interface ResourceLink {
   id: string
-  type: 'music'
   title_en: string
   title_zh: string
-  instrument: string
-  pages: number
-  sheet_key: string | null   // R2 key for PDF sheet
-  audio_key: string | null   // R2 key for audio file
+  url: string
+  desc_en: string
+  desc_zh: string
+  icon: string
+  sort_order: number
+}
+
+export interface Song {
+  id: string
+  title_en: string
+  title_zh: string
+  artist: string
+  album: string
+  audio_key: string | null
+  cover_key: string | null
+  duration: number
+  created_at: string
+  updated_at: string
+}
+
+export interface Score {
+  id: string
+  title_en: string
+  title_zh: string
+  composer: string
+  score_type: 'staff' | 'tab' | 'jianpu' | 'mixed'
+  file_key: string | null
+  file_type: 'pdf' | 'gp' | null
+  preview_key: string | null
   created_at: string
   updated_at: string
 }
 
 export interface ModelCard {
   id: string
-  type: 'model'
   title_en: string
   title_zh: string
   desc_en: string
   desc_zh: string
-  software: string           // SolidWorks / Blender / AutoCAD …
-  preview_key: string | null // R2 key for preview image
+  software: string
+  preview_key: string | null
   file_key: string | null
   created_at: string
   updated_at: string
@@ -55,7 +75,6 @@ export interface ModelCard {
 
 export interface HonorCard {
   id: string
-  type: 'honor'
   title_en: string
   title_zh: string
   org_en: string
@@ -76,33 +95,16 @@ export interface TimelineItem {
   sort_order: number
 }
 
-export type AnyCard = NoteCard | MusicCard | ModelCard | HonorCard
-
-// ─── API 响应 ──────────────────────────────────────────────────────────────────
+export interface Summary {
+  notes:  { count: number; updated_at: string | null }
+  songs:  { count: number; updated_at: string | null }
+  scores: { count: number; updated_at: string | null }
+  models: { count: number }
+  honors: { count: number }
+}
 
 export interface ApiResponse<T = unknown> {
   ok: boolean
   data?: T
   error?: string
 }
-
-export interface UploadUrlResponse {
-  upload_url: string
-  file_key: string
-}
-
-export interface PresignedReadResponse {
-  url: string
-  expires_in: number
-}
-
-// ─── Auth ─────────────────────────────────────────────────────────────────────
-
-export interface AuthState {
-  token: string | null
-  isAdmin: boolean
-}
-
-// ─── i18n ─────────────────────────────────────────────────────────────────────
-
-export type Lang = 'en' | 'zh'
