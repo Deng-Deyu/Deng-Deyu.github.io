@@ -51,7 +51,8 @@ export function Navbar() {
       {/* Mobile bottom nav */}
       <nav className="mobile-nav">
         {[{to:'/',en:'Home',zh:'首页',Icon:Home},...NAV].map(n=>{
-          const active=n.to==='/'?loc.pathname===='/':loc.pathname.startsWith(n.to)
+          const isRoot = n.to === '/'
+          const active = isRoot ? (loc.pathname === '/') : loc.pathname.startsWith(n.to)
           return (
             <Link key={n.to} to={n.to} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'.18rem',padding:'.35rem .4rem',color:active?'var(--orange-b)':'var(--text3)',fontSize:'.58rem',fontWeight:600,minWidth:44,textAlign:'center'}}>
               <n.Icon size={19}/>{lang==='zh'?n.zh:n.en}
