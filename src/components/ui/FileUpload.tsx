@@ -1,45 +1,67 @@
-import { useState } from 'react'
-import { Upload } from 'lucide-react'
-import { useAppStore } from '@/store'
-import { fileApi } from '@/lib/api'
+import React, { useState, useRef } from 'react';
+import { UploadCloud, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
-interface Props {
-  label: string
-  accept?: string
-  onUploaded: (key: string) => void
-  currentKey?: string | null
+interface FileUploadProps {
+  onUpload: (fileKey: string, fileType: string) => void;
+  accept?: string;
+  maxSizeMB?: number;
+  label?: string;
 }
 
-export function FileUpload({ label, accept, onUploaded, currentKey }: Props) {
-  const { token, lang } = useAppStore()
-  const [uploading, setUploading] = useState(false)
-  const [filename, setFilename]   = useState('')
-  const [err, setErr]             = useState('')
+const EXTENSION_MAP: Record<string, string> = {
+  'pdf': 'pdf', 'md': 'markdown', 'txt': 'txt', 'docx': 'docx', 'pptx': 'pptx',
+  'obj': 'obj', 'stl': 'stl', 'fbx': 'fbx', 'gltf': 'gltf', 'glb': 'glb',
+  'mp3': 'mp3', 'wav': 'wav', 'flac': 'flac', 'aac': 'aac', 'mp4': 'mp4', 'mkv': 'mkv',
+  'gp': 'gp', 'gpx': 'gpx', 'gp5': 'gp5', 'mscz': 'mscz', 'mscx': 'mscx',
+  'jpg': 'image', 'jpeg': 'image', 'png': 'image', 'svg': 'image', 'gif': 'image'
+};
 
-  async function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file || !token) return
-    setUploading(true); setErr('')
-    const key = await fileApi.upload(token, file)
-    setUploading(false)
-    if (key) { setFilename(file.name); onUploaded(key) }
-    else setErr(lang === 'zh' ? '上传失败' : 'Upload failed')
-  }
+export const FileUpload: React.FC<FileUploadProps> = ({ 
+  onUpload, accept = "*", maxSizeMB = 200, label = "点击或拖拽上传文件" 
+}) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+  const [errorMsg, setErrorMsg] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = async (file: File) => {
+    if (file.size > maxSizeMB * 1024 * 1024) {
+      setStatus('error'); setErrorMsg(`不能超过 ${maxSizeMB}MB`); return;
+    }
+    setStatus('uploading'); setErrorMsg('');
+    try {
+      const token = localStorage.getItem('adminToken');
+      if (!token) throw new Error('未登录');
+      const formData = new FormData(); formData.append('file', file);
+      const response = await fetch('/api/upload', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: formData });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || '上传失败');
+      setStatus('success');
+      const ext = file.name.split('.').pop()?.toLowerCase() || '';
+      onUpload(data.key || data.data?.file_key, EXTENSION_MAP[ext] || 'unknown');
+      setTimeout(() => setStatus('idle'), 3000);
+    } catch (err: any) {
+      setStatus('error'); setErrorMsg(err.message);
+    }
+  };
 
   return (
-    <label style={{
-      display:'flex',alignItems:'center',gap:'.6rem',
-      padding:'.6rem .85rem',background:'var(--bg3)',
-      border:`1px solid ${err?'var(--orange-a)':'var(--border)'}`,
-      borderRadius:'var(--radius-sm)',cursor:'pointer',fontSize:'.85rem',color:'var(--text2)',
-    }}>
-      <Upload size={15} style={{ color: uploading ? 'var(--orange-b)' : undefined }} />
-      {uploading
-        ? (lang==='zh' ? '上传中…' : 'Uploading…')
-        : filename || (currentKey ? '✓ ' + currentKey.split('/').pop()?.slice(14) : (lang==='zh'?'选择文件…':'Choose file…'))
-      }
-      <input type="file" accept={accept} style={{ display:'none' }} onChange={handleChange} />
-      {err && <span style={{ color:'var(--orange-a)',fontSize:'.75rem' }}>{err}</span>}
-    </label>
-  )
-}
+    <div 
+      className={`relative p-6 border-2 border-dashed rounded-xl transition-all duration-300 text-center cursor-pointer 
+        ${isDragging ? 'border-primary bg-primary/10' : 'border-white/20 bg-white/5 hover:bg-white/10'}
+        ${status === 'error' ? 'border-red-500 bg-red-500/10' : ''}`}
+      onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+      onDragLeave={() => setIsDragging(false)}
+      onDrop={(e) => { e.preventDefault(); setIsDragging(false); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); }}
+      onClick={() => inputRef.current?.click()}
+    >
+      <input type="file" className="hidden" ref={inputRef} onChange={(e) => e.target.files && handleFile(e.target.files[0])} accept={accept} />
+      <div className="flex flex-col items-center gap-2">
+        {status === 'idle' && <><UploadCloud className="w-8 h-8 text-gray-400" /><span className="text-sm">{label}</span></>}
+        {status === 'uploading' && <><Loader2 className="w-8 h-8 text-primary animate-spin" /><span className="text-sm">上传中...</span></>}
+        {status === 'success' && <><CheckCircle className="w-8 h-8 text-green-400" /><span className="text-sm text-green-400">成功</span></>}
+        {status === 'error' && <><AlertCircle className="w-8 h-8 text-red-500" /><span className="text-sm text-red-500">{errorMsg}</span></>}
+      </div>
+    </div>
+  );
+};

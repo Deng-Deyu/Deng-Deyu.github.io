@@ -1,4 +1,4 @@
-import type { Note, NoteCategory, Song, Score, ModelCard, HonorCard, TimelineItem, ResourceLink, Summary, ApiResponse } from '@/types'
+import type { Note, NoteCategory, Song, Score, ModelCard, HonorCard, TimelineItem, ResourceLink, Summary, ApiResponse, SoftwareProject } from '@/types'
 
 export const API_BASE = (import.meta.env.VITE_API_BASE as string) || ''
 
@@ -36,6 +36,7 @@ export const songsApi        = makeApi<Song>('songs')
 export const scoresApi       = makeApi<Score>('scores')
 export const modelsApi       = makeApi<ModelCard>('models')
 export const honorsApi       = makeApi<HonorCard>('honors')
+export const softwareApi     = makeApi<SoftwareProject>('software')
 
 export const authApi = {
   login: (password: string) =>
@@ -58,21 +59,8 @@ export const fileApi = {
   url: (key: string) => `${API_BASE}/api/file/${encodeURIComponent(key)}`,
 }
 
-// i18n helpers
-export function tl(obj: { title_en: string; title_zh: string }, lang: string) {
-  return lang === 'zh' ? obj.title_zh : obj.title_en
-}
-export function dl(obj: { desc_en?: string; desc_zh?: string }, lang: string) {
-  return lang === 'zh' ? (obj.desc_zh ?? '') : (obj.desc_en ?? '')
-}
-export function parseTags(tags: string): string[] {
-  try { return JSON.parse(tags) } catch { return [] }
-}
-export function fmtDate(iso: string | null) {
-  if (!iso) return ''
-  return new Date(iso).toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' })
-}
-export function fmtDuration(secs: number) {
-  const m = Math.floor(secs / 60), s = secs % 60
-  return `${m}:${String(s).padStart(2, '0')}`
-}
+export function tl(obj: { title_en: string; title_zh: string }, lang: string) { return lang === 'zh' ? obj.title_zh : obj.title_en }
+export function dl(obj: { desc_en?: string; desc_zh?: string }, lang: string) { return lang === 'zh' ? (obj.desc_zh ?? '') : (obj.desc_en ?? '') }
+export function parseTags(tags: string): string[] { try { return JSON.parse(tags) } catch { return [] } }
+export function fmtDate(iso: string | null) { if (!iso) return ''; return new Date(iso).toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' }) }
+export function fmtDuration(secs: number) { const m = Math.floor(secs / 60), s = secs % 60; return `${m}:${String(s).padStart(2, '0')}` }

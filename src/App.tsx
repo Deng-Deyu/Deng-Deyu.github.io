@@ -5,6 +5,7 @@ import { HomePage }     from '@/pages/HomePage'
 import { NotesPage }    from '@/pages/NotesPage'
 import { MusicPage }    from '@/pages/MusicPage'
 import { ModelingPage, HonorsPage } from '@/pages/ModelingHonorsPages'
+import { SoftwarePage } from '@/pages/SoftwarePage'
 import { FileViewer }   from '@/pages/FileViewer'
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
           <Route path="/music"     element={<MusicPage />} />
           <Route path="/modeling"  element={<ModelingPage />} />
           <Route path="/honors"    element={<HonorsPage />} />
+          <Route path="/software"  element={<SoftwarePage />} />
           <Route path="/view/:id"  element={<FileViewer />} />
           <Route path="*"          element={<NotFound />} />
         </Routes>

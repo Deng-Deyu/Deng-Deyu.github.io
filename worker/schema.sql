@@ -59,6 +59,16 @@ CREATE TABLE IF NOT EXISTS honors (
   created_at TEXT NOT NULL, updated_at TEXT NOT NULL
 );
 
+-- 新增：软件项目表
+CREATE TABLE IF NOT EXISTS software_projects (
+  id TEXT PRIMARY KEY, title_en TEXT NOT NULL, title_zh TEXT NOT NULL,
+  desc_en TEXT NOT NULL DEFAULT '', desc_zh TEXT NOT NULL DEFAULT '',
+  is_open_source INTEGER NOT NULL DEFAULT 1,
+  github_url TEXT, download_url TEXT,
+  preview_key TEXT, tags TEXT NOT NULL DEFAULT '[]',
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_notes_cat    ON notes(category_id);
 CREATE INDEX IF NOT EXISTS idx_songs_artist ON songs(artist);
 CREATE INDEX IF NOT EXISTS idx_scores_type  ON scores(score_type);

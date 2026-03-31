@@ -38,8 +38,9 @@ const COLS: Record<string,string[]>={
   scores:['title_en','title_zh','composer','score_type','file_key','file_type','preview_key'],
   models:['title_en','title_zh','desc_en','desc_zh','software','preview_key','file_key'],
   honors:['title_en','title_zh','org_en','org_zh','year','emoji'],
+  software_projects:['title_en','title_zh','desc_en','desc_zh','is_open_source','github_url','download_url','preview_key','tags'],
 }
-const HAS_TS=['notes','songs','scores','models','honors']
+const HAS_TS=['notes','songs','scores','models','honors','software_projects']
 async function dbList(table: string, env: Env, url: URL) {
   let sql=`SELECT * FROM ${table}`, params: unknown[]=[], wheres: string[]=[]
   const artist=url.searchParams.get('artist'), cat=url.searchParams.get('category')
@@ -54,14 +55,23 @@ async function dbList(table: string, env: Env, url: URL) {
   return rows.results
 }
 async function dbCreate(table: string, body: Record<string,unknown>, env: Env) {
-  const id=uid(), ts=now(), allowed=COLS[table]??[], keys=Object.keys(body).filter(k=>allowed.includes(k))
+  const id=uid(), ts=now(), allowed=COLS[table]??[]
+  // 修复类型问题，防止 500
+  if(table==='songs') body.duration = Number(body.duration)||0;
+  if(table==='software_projects') body.is_open_source = body.is_open_source ? 1 : 0;
+  
+  const keys=Object.keys(body).filter(k=>allowed.includes(k))
   const cols=['id',...(HAS_TS.includes(table)?['created_at','updated_at']:[]),...keys]
   const vals=[id,...(HAS_TS.includes(table)?[ts,ts]:[]),...keys.map(k=>body[k]??null)]
   await env.DB.prepare(`INSERT INTO ${table} (${cols.join(',')}) VALUES (${vals.map(()=>'?').join(',')})`).bind(...vals).run()
   return id
 }
 async function dbUpdate(table: string, id: string, body: Record<string,unknown>, env: Env) {
-  const allowed=COLS[table]??[], keys=Object.keys(body).filter(k=>allowed.includes(k))
+  const allowed=COLS[table]??[]
+  if(table==='songs' && body.duration !== undefined) body.duration = Number(body.duration)||0;
+  if(table==='software_projects' && body.is_open_source !== undefined) body.is_open_source = body.is_open_source ? 1 : 0;
+  
+  const keys=Object.keys(body).filter(k=>allowed.includes(k))
   if(!keys.length) return
   const sets=keys.map(k=>`${k}=?`).join(',')
   if(HAS_TS.includes(table)) {
@@ -73,7 +83,7 @@ async function dbUpdate(table: string, id: string, body: Record<string,unknown>,
 const SLUG_TABLE: Record<string,string>={
   'timeline':'timeline','note-categories':'note_categories','notes':'notes',
   'resource-links':'resource_links','songs':'songs','scores':'scores',
-  'models':'models','honors':'honors'
+  'models':'models','honors':'honors','software':'software_projects'
 }
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -87,22 +97,25 @@ export default {
         return json({ok:true,data:{token:await sign({role:'admin'},env.JWT_SECRET)}},200,origin)
       }
       if(path==='/api/summary'&&method==='GET') {
-        const [n,s,sc,m,h]=await Promise.all([
+        const [n,s,sc,m,h,sw]=await Promise.all([
           env.DB.prepare('SELECT COUNT(*) as c FROM notes').first<{c:number}>(),
           env.DB.prepare('SELECT COUNT(*) as c FROM songs').first<{c:number}>(),
           env.DB.prepare('SELECT COUNT(*) as c FROM scores').first<{c:number}>(),
           env.DB.prepare('SELECT COUNT(*) as c FROM models').first<{c:number}>(),
           env.DB.prepare('SELECT COUNT(*) as c FROM honors').first<{c:number}>(),
+          env.DB.prepare('SELECT COUNT(*) as c FROM software_projects').first<{c:number}>(),
         ])
-        const [ln,ls,lsc]=await Promise.all([
-          env.DB.prepare('SELECT updated_at FROM notes  ORDER BY updated_at DESC LIMIT 1').first<{updated_at:string}>(),
-          env.DB.prepare('SELECT updated_at FROM songs  ORDER BY updated_at DESC LIMIT 1').first<{updated_at:string}>(),
+        const [ln,ls,lsc,lsw]=await Promise.all([
+          env.DB.prepare('SELECT updated_at FROM notes ORDER BY updated_at DESC LIMIT 1').first<{updated_at:string}>(),
+          env.DB.prepare('SELECT updated_at FROM songs ORDER BY updated_at DESC LIMIT 1').first<{updated_at:string}>(),
           env.DB.prepare('SELECT updated_at FROM scores ORDER BY updated_at DESC LIMIT 1').first<{updated_at:string}>(),
+          env.DB.prepare('SELECT updated_at FROM software_projects ORDER BY updated_at DESC LIMIT 1').first<{updated_at:string}>(),
         ])
         return json({ok:true,data:{
           notes:{count:n?.c??0,updated_at:ln?.updated_at??null},
           songs:{count:s?.c??0,updated_at:ls?.updated_at??null},
           scores:{count:sc?.c??0,updated_at:lsc?.updated_at??null},
+          software:{count:sw?.c??0,updated_at:lsw?.updated_at??null},
           models:{count:m?.c??0},honors:{count:h?.c??0},
         }},200,origin)
       }
@@ -147,6 +160,10 @@ export default {
         return new Response(obj.body,{headers:{'Content-Type':obj.httpMetadata?.contentType?? 'application/octet-stream','Cache-Control':'private, max-age=1800','Access-Control-Allow-Origin':origin}})
       }
       return json({ok:false,error:'Not found'},404,origin)
-    } catch(err) {console.error(err);return json({ok:false,error:'Internal server error'},500,origin)}
+    } catch(err:any) {
+      console.error(err);
+      // 抛出详细错误而不是简单的 500
+      return json({ok:false,error:err.message||'Internal server error'},500,origin)
+    }
   }
 }
