@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Pencil, Trash2, ChevronRight, ChevronDown, ExternalLink, X, Loader } from 'lucide-react'
 import { useAppStore } from '@/store'
-import { notesApi, noteCatApi, resourceApi, fileApi, tl, dl, parseTags, fmtDate } from '@/lib/api'
+import { notesApi, noteCatApi, resourceApi, tl, dl, parseTags, fmtDate } from '@/lib/api'
 import { ViewToggle } from '@/components/ui/ViewToggle'
 import { FileUpload } from '@/components/ui/FileUpload'
 import type { Note, NoteCategory, ResourceLink, ViewMode } from '@/types'
@@ -41,7 +41,7 @@ function NoteEditor({ item, cats, onSave, onClose }: { item?: Note; cats: NoteCa
   const [form, setForm] = useState({
     title_en: item?.title_en??'', title_zh: item?.title_zh??'', desc_en: item?.desc_en??'', desc_zh: item?.desc_zh??'',
     category_id: item?.category_id??cats[0]?.id??'other', tags: parseTags(item?.tags??'[]').join(', '),
-    file_key: item?.file_key??'', file_type: item?.file_type??'pdf',
+    file_key: item?.file_key??'', file_type: (item?.file_type??'pdf') as 'pdf'|'markdown'|'txt',
   })
   const [saving, setSaving] = useState(false)
   async function submit(e: React.FormEvent) {
@@ -70,7 +70,7 @@ function NoteEditor({ item, cats, onSave, onClose }: { item?: Note; cats: NoteCa
             </select>
           </div>
           <div className="field"><label>{lang==='zh'?'上传文件':'Upload file'}</label>
-            <FileUpload label="" accept=".pdf,.md,.txt" currentKey={form.file_key||null} onUploaded={k=>setForm(v=>({...v,file_key:k}))} />
+            <FileUpload accept=".pdf,.md,.txt,.docx,.pptx,.xlsx,.jpg,.jpeg,.png,.zip" currentKey={form.file_key||null} onUploaded={k=>setForm(v=>({...v,file_key:k}))} />
           </div>
           <div className="modal-footer">
             <button type="button" className="btn-ghost" onClick={onClose}>{lang==='zh'?'取消':'Cancel'}</button>
@@ -128,8 +128,6 @@ export function NotesPage() {
     if (lr.ok && lr.data) setLinks(lr.data)
   }
   useEffect(() => { load() }, [])
-
-  const catMap = Object.fromEntries(cats.map(c => [c.id, c]))
 
   async function saveNote(data: Record<string,unknown>) {
     if (editNote === 'new') await notesApi.create(token!, data)

@@ -84,6 +84,20 @@ export function FileViewer() {
             {lang==='zh'?'暂无文件附件。':'No file attached yet.'}
           </div>
         )}
+        {note?.file_key && !['pdf','markdown','txt'].includes(note?.file_type??'') && (
+          <div style={{ textAlign:'center',padding:'4rem 0' }}>
+            <div style={{ fontSize:'3rem',marginBottom:'1rem' }}>📎</div>
+            <p style={{ color:'var(--text2)',marginBottom:'1.5rem' }}>
+              {lang==='zh'?'此格式无法在线预览，请下载后打开。':'This format cannot be previewed inline. Please download to open.'}
+            </p>
+            {note.file_key && (
+              <a href={fileApi.url(note.file_key)} download className="btn-primary"
+                style={{ display:'inline-flex',alignItems:'center',gap:'.5rem' }}>
+                ↓ {lang==='zh'?'下载文件':'Download File'}
+              </a>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

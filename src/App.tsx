@@ -4,8 +4,8 @@ import { Footer }       from '@/components/layout/Footer'
 import { HomePage }     from '@/pages/HomePage'
 import { NotesPage }    from '@/pages/NotesPage'
 import { MusicPage }    from '@/pages/MusicPage'
+import { ProjectsPage } from '@/pages/ProjectsPage'
 import { ModelingPage, HonorsPage } from '@/pages/ModelingHonorsPages'
-import { SoftwarePage } from '@/pages/SoftwarePage'
 import { FileViewer }   from '@/pages/FileViewer'
 
 export default function App() {
@@ -17,9 +17,9 @@ export default function App() {
           <Route path="/"          element={<HomePage />} />
           <Route path="/notes"     element={<NotesPage />} />
           <Route path="/music"     element={<MusicPage />} />
+          <Route path="/projects"  element={<ProjectsPage />} />
           <Route path="/modeling"  element={<ModelingPage />} />
           <Route path="/honors"    element={<HonorsPage />} />
-          <Route path="/software"  element={<SoftwarePage />} />
           <Route path="/view/:id"  element={<FileViewer />} />
           <Route path="*"          element={<NotFound />} />
         </Routes>
@@ -32,9 +32,9 @@ export default function App() {
 function NotFound() {
   return (
     <div style={{ display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:'80vh',gap:'1rem' }}>
-      <div style={{ fontSize:'4rem' }}>🐢</div>
-      <h1 style={{ fontSize:'1.5rem',fontWeight:800 }}>404 — Page not found</h1>
-      <a href="/" style={{ color:'var(--orange-b)',fontFamily:"'Space Mono',monospace",fontSize:'.85rem' }}>← Back home</a>
+      <div style={{ fontSize:'4rem',animation:'float 3s ease-in-out infinite' }}>🐢</div>
+      <h1 style={{ fontSize:'1.4rem',fontWeight:800,letterSpacing:'-.02em' }}>404 — Page not found</h1>
+      <a href="/" style={{ color:'var(--orange-b)',fontFamily:"'Space Mono',monospace",fontSize:'.82rem' }}>← Back home</a>
     </div>
   )
 }

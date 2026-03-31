@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Plus, Pencil, Trash2, Box, Download, X, Loader, Award } from 'lucide-react'
+import { Plus, Pencil, Trash2, Box, Download, X, Loader } from 'lucide-react'
 import { useAppStore } from '@/store'
 import { modelsApi, honorsApi, fileApi, tl, dl, fmtDate } from '@/lib/api'
 import { ViewToggle } from '@/components/ui/ViewToggle'
@@ -22,8 +22,8 @@ function ModelEditor({ item, onSave, onClose }: { item?: ModelCard; onSave:(d:Re
               {k.startsWith('desc')?<textarea value={(form as Record<string,string>)[k]} onChange={e=>setForm(v=>({...v,[k]:e.target.value}))}/>:<input value={(form as Record<string,string>)[k]} onChange={e=>setForm(v=>({...v,[k]:e.target.value}))}/>}
             </div>
           ))}
-          <div className="field"><label>{lang==='zh'?'预览图':'Preview'}</label><FileUpload label="" accept=".jpg,.png,.webp" currentKey={form.preview_key||null} onUploaded={k=>setForm(v=>({...v,preview_key:k}))}/></div>
-          <div className="field"><label>{lang==='zh'?'模型文件':'Model file'}</label><FileUpload label="" accept=".stp,.stl,.obj,.blend,.zip,.step" currentKey={form.file_key||null} onUploaded={k=>setForm(v=>({...v,file_key:k}))}/></div>
+          <div className="field"><label>{lang==='zh'?'预览图':'Preview'}</label><FileUpload accept=".jpg,.png,.webp" currentKey={form.preview_key||null} onUploaded={k=>setForm(v=>({...v,preview_key:k}))}/></div>
+          <div className="field"><label>{lang==='zh'?'模型文件':'Model file'}</label><FileUpload accept=".stp,.step,.stl,.obj,.blend,.zip,.3ds,.fbx,.iges,.igs,.f3d,.x_t,.x_b,.dxf,.dwg" currentKey={form.file_key||null} onUploaded={k=>setForm(v=>({...v,file_key:k}))}/></div>
           <div className="modal-footer">
             <button type="button" className="btn-ghost" onClick={onClose}>{lang==='zh'?'取消':'Cancel'}</button>
             <button type="submit" className="btn-primary" disabled={saving}>{saving?<Loader size={14} className="spin"/>:null}{lang==='zh'?'保存':'Save'}</button>

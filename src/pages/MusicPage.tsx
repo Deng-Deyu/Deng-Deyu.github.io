@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
-import { Play, Pause, Download, Plus, Pencil, Trash2, Music2, FileMusic, X, Loader, ChevronDown, ChevronRight, SkipBack, SkipForward, Volume2 } from 'lucide-react'
+import { Play, Pause, Download, Plus, Pencil, Trash2, Music2, FileMusic, X, Loader, ChevronDown, ChevronRight, SkipBack, SkipForward } from 'lucide-react'
 import { useAppStore } from '@/store'
-import { songsApi, scoresApi, fileApi, tl, fmtDate, fmtDuration } from '@/lib/api'
+import { songsApi, scoresApi, fileApi, tl, fmtDuration } from '@/lib/api'
 import { ViewToggle } from '@/components/ui/ViewToggle'
 import { FileUpload } from '@/components/ui/FileUpload'
 import type { Song, Score, ViewMode } from '@/types'
@@ -9,23 +9,24 @@ import type { Song, Score, ViewMode } from '@/types'
 // ── Song editor ───────────────────────────────────────────────────────────────
 function SongEditor({ item, onSave, onClose }: { item?: Song; onSave:(d:Record<string,unknown>)=>Promise<void>; onClose:()=>void }) {
   const { lang } = useAppStore()
-  const [form, setForm] = useState({ title_en:item?.title_en??'',title_zh:item?.title_zh??'',artist:item?.artist??'',album:item?.album??'',duration:item?.duration??0,audio_key:item?.audio_key??'',cover_key:item?.cover_key??'' })
+  type SongForm = { title_en:string;title_zh:string;artist:string;album:string;duration:number;audio_key:string;cover_key:string }
+  const [form, setForm] = useState<SongForm>({ title_en:item?.title_en??'',title_zh:item?.title_zh??'',artist:item?.artist??'',album:item?.album??'',duration:item?.duration??0,audio_key:item?.audio_key??'',cover_key:item?.cover_key??'' })
   const [saving, setSaving] = useState(false)
-  async function submit(e: React.FormEvent) { e.preventDefault(); setSaving(true); await onSave(form as unknown as Record<string,unknown>); setSaving(false); onClose() }
+  async function submit(e: React.FormEvent) { e.preventDefault(); setSaving(true); await onSave({...form} as unknown as Record<string,unknown>); setSaving(false); onClose() }
   return (
     <div className="modal-backdrop" onClick={e=>{if(e.target===e.currentTarget)onClose()}}>
       <div className="modal">
         <div className="modal-header"><h2>{lang==='zh'?'编辑歌曲':'Edit Song'}</h2><button className="btn-icon" onClick={onClose}><X size={16}/></button></div>
         <form onSubmit={submit} style={{ display:'flex',flexDirection:'column',gap:'.85rem' }}>
           {[['title_en','Title (EN)','标题（英）'],['title_zh','Title (ZH)','标题（中）'],['artist','Artist','歌手'],['album','Album','专辑']].map(([k,en,zh])=>(
-            <div className="field" key={k}><label>{lang==='zh'?zh:en}</label><input value={(form as Record<string,string>)[k]} onChange={e=>setForm(v=>({...v,[k]:e.target.value}))}/></div>
+            <div className="field" key={k}><label>{lang==='zh'?zh:en}</label><input value={(form as Record<string,unknown>)[k] as string} onChange={e=>setForm(v=>({...v,[k]:e.target.value}))}/></div>
           ))}
           <div className="field"><label>{lang==='zh'?'时长（秒）':'Duration (sec)'}</label><input type="number" value={form.duration} onChange={e=>setForm(v=>({...v,duration:+e.target.value}))}/></div>
           <div className="field"><label>{lang==='zh'?'音频文件':'Audio file'}</label>
-            <FileUpload label="" accept=".mp3,.wav,.flac,.ogg,.m4a,.aac,.opus" currentKey={form.audio_key||null} onUploaded={k=>setForm(v=>({...v,audio_key:k}))}/>
+            <FileUpload accept=".mp3,.wav,.flac,.ogg,.m4a,.aac,.opus,.ape,.wma,.aiff" currentKey={form.audio_key||null} onUploaded={k=>setForm(v=>({...v,audio_key:k}))}/>
           </div>
           <div className="field"><label>{lang==='zh'?'封面图':'Cover image'}</label>
-            <FileUpload label="" accept=".jpg,.jpeg,.png,.webp" currentKey={form.cover_key||null} onUploaded={k=>setForm(v=>({...v,cover_key:k}))}/>
+            <FileUpload accept=".jpg,.jpeg,.png,.webp" currentKey={form.cover_key||null} onUploaded={k=>setForm(v=>({...v,cover_key:k}))}/>
           </div>
           <div className="modal-footer">
             <button type="button" className="btn-ghost" onClick={onClose}>{lang==='zh'?'取消':'Cancel'}</button>
@@ -41,16 +42,16 @@ function SongEditor({ item, onSave, onClose }: { item?: Song; onSave:(d:Record<s
 function ScoreEditor({ item, onSave, onClose }: { item?: Score; onSave:(d:Record<string,unknown>)=>Promise<void>; onClose:()=>void }) {
   const { lang } = useAppStore()
   const TYPES = [['staff','五线谱 Staff'],['tab','六线谱 Tab'],['jianpu','简谱 Jianpu'],['mixed','混合谱 Mixed']]
-  const [form, setForm] = useState({ title_en:item?.title_en??'',title_zh:item?.title_zh??'',composer:item?.composer??'',score_type:item?.score_type??'mixed',file_key:item?.file_key??'',file_type:item?.file_type??'pdf',preview_key:item?.preview_key??'' })
+  const [form, setForm] = useState({ title_en:item?.title_en??'',title_zh:item?.title_zh??'',composer:item?.composer??'',score_type:(item?.score_type??'mixed') as 'staff'|'tab'|'jianpu'|'mixed',file_key:item?.file_key??'',file_type:(item?.file_type??'pdf') as 'pdf'|'gp',preview_key:item?.preview_key??'' })
   const [saving, setSaving] = useState(false)
-  async function submit(e: React.FormEvent) { e.preventDefault(); setSaving(true); await onSave(form as unknown as Record<string,unknown>); setSaving(false); onClose() }
+  async function submit(e: React.FormEvent) { e.preventDefault(); setSaving(true); await onSave({...form} as unknown as Record<string,unknown>); setSaving(false); onClose() }
   return (
     <div className="modal-backdrop" onClick={e=>{if(e.target===e.currentTarget)onClose()}}>
       <div className="modal">
         <div className="modal-header"><h2>{lang==='zh'?'编辑乐谱':'Edit Score'}</h2><button className="btn-icon" onClick={onClose}><X size={16}/></button></div>
         <form onSubmit={submit} style={{ display:'flex',flexDirection:'column',gap:'.85rem' }}>
           {[['title_en','Title (EN)','标题（英）'],['title_zh','Title (ZH)','标题（中）'],['composer','Composer','作曲者']].map(([k,en,zh])=>(
-            <div className="field" key={k}><label>{lang==='zh'?zh:en}</label><input value={(form as Record<string,string>)[k]} onChange={e=>setForm(v=>({...v,[k]:e.target.value}))}/></div>
+            <div className="field" key={k}><label>{lang==='zh'?zh:en}</label><input value={(form as Record<string,unknown>)[k] as string} onChange={e=>setForm(v=>({...v,[k]:e.target.value}))}/></div>
           ))}
           <div className="field"><label>{lang==='zh'?'谱型':'Score type'}</label>
             <select value={form.score_type} onChange={e=>setForm(v=>({...v,score_type:e.target.value}))}>
@@ -63,10 +64,10 @@ function ScoreEditor({ item, onSave, onClose }: { item?: Score; onSave:(d:Record
             </select>
           </div>
           <div className="field"><label>{lang==='zh'?'乐谱文件':'Score file'}</label>
-            <FileUpload label="" accept=".pdf,.gp,.gpx,.gp5,.gp4" currentKey={form.file_key||null} onUploaded={k=>setForm(v=>({...v,file_key:k}))}/>
+            <FileUpload accept=".pdf,.gp,.gpx,.gp5,.gp4,.gp3,.ptb,.tef,.mxl,.xml,.musicxml,.mscz,.mscx" currentKey={form.file_key||null} onUploaded={k=>setForm(v=>({...v,file_key:k}))}/>
           </div>
           <div className="field"><label>{lang==='zh'?'预览图':'Preview image'}</label>
-            <FileUpload label="" accept=".jpg,.png,.webp" currentKey={form.preview_key||null} onUploaded={k=>setForm(v=>({...v,preview_key:k}))}/>
+            <FileUpload accept=".jpg,.png,.webp" currentKey={form.preview_key||null} onUploaded={k=>setForm(v=>({...v,preview_key:k}))}/>
           </div>
           <div className="modal-footer">
             <button type="button" className="btn-ghost" onClick={onClose}>{lang==='zh'?'取消':'Cancel'}</button>
