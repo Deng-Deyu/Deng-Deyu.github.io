@@ -6,50 +6,46 @@ export function HeroSection() {
   const { lang } = useAppStore()
 
   return (
-    <section id="hero" className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden px-8">
-      {/* 呼吸光晕 */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full opacity-60 pointer-events-none"
-           style={{ background: 'radial-gradient(circle, rgba(100, 150, 255, 0.15) 0%, transparent 70%)', animation: 'pulse-glow 6s infinite' }} />
+    <section id="hero" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', padding: '0 2rem' }}>
+      
+      {/* 核心发光特效 */}
+      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%)', filter: 'blur(40px)', animation: 'pulse-glow 6s infinite', pointerEvents: 'none' }} />
 
-      <div className="relative z-10 text-center max-w-3xl glass-card-3d p-12 rounded-3xl">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-primary font-mono text-sm mb-8">
-          <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+      <div className="card" style={{ maxWidth: 800, textAlign: 'center', zIndex: 10, padding: '3rem 2rem', background: 'rgba(17, 24, 39, 0.4)' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '.5rem', padding: '.4rem 1.2rem', borderRadius: 100, background: 'var(--bg3)', border: '1px solid var(--border)', fontSize: '.8rem', color: 'var(--orange-b)', marginBottom: '2rem', fontFamily: "'Space Mono', monospace" }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--orange-b)', animation: 'spin 2s infinite linear' }} />
           {lang === 'zh' ? '开放合作 · 创造者' : 'Open to collaboration · Creator'}
         </div>
 
-        <span className="block font-mono text-xl text-gray-400 mb-2 tracking-wider">
+        <span style={{ display: 'block', fontFamily: "'Space Mono', monospace", fontSize: '1.2rem', color: 'var(--text3)', marginBottom: '.5rem', letterSpacing: '.1em' }}>
           {lang === 'zh' ? '你好，我是' : "Hi, I'm"}
         </span>
 
-        <h1 className="text-glow-3d font-sans text-6xl md:text-8xl font-black leading-none mb-6 tracking-tighter">
+        <h1 className="text-glow-3d" style={{ fontSize: 'clamp(3.5rem, 8vw, 6rem)', fontWeight: 800, lineHeight: 1.1, marginBottom: '1.5rem', letterSpacing: '-0.05em' }}>
           Turtlelet
         </h1>
 
-        <p className="text-lg md:text-xl text-gray-300 leading-relaxed max-w-xl mx-auto mb-8">
+        <p style={{ fontSize: '1.1rem', color: 'var(--text2)', maxWidth: 600, margin: '0 auto 2rem', lineHeight: 1.8 }}>
           {lang === 'zh'
-            ? '开发者 · 音乐爱好者 · 建模师。我构建事物，学习知识，并记录每一段旅程。'
+            ? '开发者 · 音乐人 · 建模师。我构建事物，学习知识，并记录每一段旅程。'
             : 'Developer · musician · modeler. I build things, learn things, and document the journey.'}
         </p>
 
-        <div className="flex flex-wrap justify-center gap-3 mb-10">
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '.5rem', marginBottom: '2.5rem' }}>
           {TAGS.map(tag => (
-            <span key={tag} className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm font-mono text-gray-300 backdrop-blur-sm">
-              {tag}
-            </span>
+            <span key={tag} className="tag tag-gray" style={{ background: 'var(--bg3)', border: '1px solid var(--border)' }}>{tag}</span>
           ))}
         </div>
 
-        <div className="flex gap-4 justify-center">
-          <a href="#notes" className="px-8 py-3 rounded-xl bg-primary text-black font-bold hover:bg-primary/90 transition-all shadow-[0_0_20px_rgba(100,150,255,0.4)]">
-            {lang === 'zh' ? '开始探索' : 'Explore Now'}
-          </a>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+          <a href="#notes" className="btn-primary" style={{ padding: '1rem 2.5rem' }}>{lang === 'zh' ? '开始探索' : 'Explore Now'}</a>
         </div>
       </div>
-
+      
       <style>{`
         @keyframes pulse-glow {
-          0%,100% { opacity:.4; transform:translate(-50%,-50%) scale(1); }
-          50%      { opacity:.8;  transform:translate(-50%,-50%) scale(1.1); }
+          0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+          50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
         }
       `}</style>
     </section>

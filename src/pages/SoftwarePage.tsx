@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Code, Github, Download, Image as ImageIcon } from 'lucide-react'
+import { Code, Github, Download, Image as ImageIcon, Plus, Pencil, Trash2 } from 'lucide-react'
 import { useAppStore } from '@/store'
-import { softwareApi, tl, dl, parseTags, fileApi } from '@/lib/api'
+import { softwareApi, fileApi, tl, dl, parseTags } from '@/lib/api'
 import { CardEditor } from '@/components/admin/CardEditor'
 import type { SoftwareProject } from '@/types'
 
@@ -10,84 +10,67 @@ export function SoftwarePage() {
   const [projects, setProjects] = useState<SoftwareProject[]>([])
   const [editing, setEditing] = useState<SoftwareProject | 'new' | null>(null)
 
-  const load = async () => {
-    const res = await softwareApi.list()
-    if (res.ok && res.data) setProjects(res.data)
-  }
+  const load = async () => { const res = await softwareApi.list(); if (res.ok && res.data) setProjects(res.data) }
   useEffect(() => { load() }, [])
+  
+  const save = async (data: Record<string, unknown>) => { 
+    if (editing === 'new') await softwareApi.create(token!, data)
+    else if (editing) await softwareApi.update(token!, editing.id, data)
+    await load() 
+  }
+  const del = async (id: string) => { if (!confirm(lang === 'zh' ? '确认删除？' : 'Delete?')) return; await softwareApi.remove(token!, id); await load() }
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-12">
-      <div className="flex justify-between items-center mb-10">
-        <div>
-          <h1 className="text-4xl font-black mb-2 flex items-center gap-3">
-            <Code className="text-primary w-10 h-10" />
-            {lang === 'zh' ? '软件项目' : 'Software Projects'}
-          </h1>
-          <p className="text-gray-400">{lang === 'zh' ? '开源代码与闭源工具。' : 'Open-source code and closed-source tools.'}</p>
+    <div className="page-wrap">
+      <div className="page-header">
+        <span className="section-label">// engineering & code</span>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+          <h1 className="section-title text-glow-3d">{lang === 'zh' ? '软件项目' : 'Software Projects'}</h1>
+          {isAdmin && <button className="btn-primary" onClick={() => setEditing('new')}><Plus size={14} />{lang === 'zh' ? '新增' : 'Add'}</button>}
         </div>
-        {isAdmin && (
-          <button onClick={() => setEditing('new')} className="px-4 py-2 bg-primary text-black rounded-lg font-bold">
-            + New Project
-          </button>
-        )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {projects.map(p => (
-          <div key={p.id} className="glass-card-3d rounded-2xl overflow-hidden flex flex-col">
-            {/* 封面图 */}
-            <div className="h-48 bg-black/40 relative flex items-center justify-center border-b border-white/10">
-              {p.preview_key ? (
-                <img src={fileApi.url(p.preview_key)} alt="preview" className="w-full h-full object-cover" />
-              ) : (
-                <ImageIcon className="w-12 h-12 text-gray-600" />
-              )}
-            </div>
-            
-            <div className="p-6 flex-1 flex flex-col">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="text-xl font-bold">{tl(p, lang)}</h3>
-                <span className={`text-xs px-2 py-1 rounded font-mono ${p.is_open_source ? 'bg-green-500/20 text-green-400' : 'bg-purple-500/20 text-purple-400'}`}>
-                  {p.is_open_source ? 'Open Source' : 'Closed Source'}
-                </span>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '1.5rem 2rem 5rem' }}>
+        <div className="cards-grid-2">
+          {projects.map(p => (
+            <div key={p.id} className="card" style={{ padding: 0, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ height: 180, background: 'var(--bg3)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', borderBottom: '1px solid var(--border)' }}>
+                {p.preview_key ? <img src={fileApi.url(p.preview_key)} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <ImageIcon size={48} color="var(--text3)" />}
               </div>
-              <p className="text-gray-400 text-sm mb-4 flex-1 line-clamp-3">{dl(p, lang)}</p>
               
-              <div className="flex flex-wrap gap-2 mb-6">
-                {parseTags(p.tags).map(t => (
-                  <span key={t} className="text-xs px-2 py-1 bg-white/5 rounded text-gray-300">{t}</span>
-                ))}
-              </div>
-
-              <div className="flex gap-3">
-                {p.is_open_source ? (
-                  <a href={p.github_url || '#'} target="_blank" rel="noreferrer" className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
-                    <Github size={16} /> GitHub
-                  </a>
-                ) : (
-                  <a href={p.download_url || '#'} target="_blank" rel="noreferrer" className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-primary/20 text-primary hover:bg-primary/30 transition-colors">
-                    <Download size={16} /> Download
-                  </a>
-                )}
+              <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>{tl(p, lang)}</h3>
+                  {isAdmin && (
+                    <div style={{ display: 'flex', gap: '0.3rem' }}>
+                      <button className="btn-icon" style={{ width: 28, height: 28 }} onClick={() => setEditing(p)}><Pencil size={12} /></button>
+                      <button className="btn-icon" style={{ width: 28, height: 28 }} onClick={() => del(p.id)}><Trash2 size={12} /></button>
+                    </div>
+                  )}
+                </div>
                 
-                {isAdmin && (
-                  <button onClick={() => setEditing(p)} className="px-3 rounded-lg bg-red-500/20 text-red-400">Edit</button>
+                <p style={{ color: 'var(--text2)', fontSize: '0.9rem', marginBottom: '1rem', flex: 1 }}>{dl(p, lang)}</p>
+                
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '1.5rem' }}>
+                  <span className="tag" style={{ background: p.is_open_source ? 'rgba(52, 211, 153, 0.1)' : 'rgba(167, 139, 250, 0.1)', color: p.is_open_source ? '#34d399' : '#a78bfa' }}>
+                    {p.is_open_source ? 'Open Source' : 'Closed Source'}
+                  </span>
+                  {parseTags(p.tags).map(t => <span key={t} className="tag tag-gray">{t}</span>)}
+                </div>
+
+                {p.is_open_source ? (
+                  <a href={p.github_url || '#'} target="_blank" rel="noreferrer" className="btn-ghost" style={{ width: '100%', justifyContent: 'center' }}><Github size={16} /> GitHub</a>
+                ) : (
+                  <a href={p.download_url || '#'} target="_blank" rel="noreferrer" className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}><Download size={16} /> Download</a>
                 )}
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+          {isAdmin && <button className="add-btn" onClick={() => setEditing('new')}><Plus size={16} /> {lang === 'zh' ? '添加软件项目' : 'Add Project'}</button>}
+        </div>
       </div>
 
-      {editing && (
-        <CardEditor
-          type="software"
-          initial={editing === 'new' ? {} : editing}
-          onClose={() => setEditing(null)}
-          onSaved={() => { setEditing(null); load(); }}
-        />
-      )}
+      {editing && <CardEditor contentType="software" initial={editing === 'new' ? {} : (editing as any)} onSave={save as any} onClose={() => setEditing(null)} />}
     </div>
   )
 }
