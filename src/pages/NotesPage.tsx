@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Pencil, Trash2, ChevronRight, ChevronDown, ExternalLink, X, Loader } from 'lucide-react'
 import { useAppStore } from '@/store'
-import { notesApi, noteCatApi, resourceApi, tl, dl, parseTags, fmtDate } from '@/lib/api'
+import { notesApi, noteCatApi, resourceApi, tl, dl, parseTags, fmtDate, titleFromFilename } from '@/lib/api'
 import { ViewToggle } from '@/components/ui/ViewToggle'
 import { FileUpload } from '@/components/ui/FileUpload'
 import type { Note, NoteCategory, ResourceLink, ViewMode } from '@/types'
@@ -70,7 +70,19 @@ function NoteEditor({ item, cats, onSave, onClose }: { item?: Note; cats: NoteCa
             </select>
           </div>
           <div className="field"><label>{lang==='zh'?'上传文件':'Upload file'}</label>
-            <FileUpload accept=".pdf,.md,.txt,.docx,.pptx,.xlsx,.jpg,.jpeg,.png,.zip" currentKey={form.file_key||null} onUploaded={k=>setForm(v=>({...v,file_key:k}))} />
+            <FileUpload accept=".pdf,.md,.txt,.docx,.pptx,.xlsx,.jpg,.jpeg,.png,.zip" currentKey={form.file_key||null}
+              onUploaded={(k,fname)=>{
+                setForm(v=>{
+                  const auto=titleFromFilename(fname||'')
+                  return{...v,file_key:k,
+                    title_en:v.title_en||auto,
+                    title_zh:v.title_zh||auto,
+                    file_type:(fname?.endsWith('.md')?'markdown':fname?.endsWith('.txt')?'txt':'pdf') as typeof v.file_type
+                  }
+                })
+              }}
+              hint={lang==='zh'?'上传后自动填充标题':'Title auto-filled from filename'}
+            />
           </div>
           <div className="modal-footer">
             <button type="button" className="btn-ghost" onClick={onClose}>{lang==='zh'?'取消':'Cancel'}</button>
@@ -253,19 +265,27 @@ export function NotesPage() {
 // ── Sub-components ────────────────────────────────────────────────────────────
 function NoteCardItem({ note, lang, isAdmin, onEdit, onDelete, onClick }: { note:Note;lang:string;isAdmin:boolean;onEdit:()=>void;onDelete:()=>void;onClick:()=>void }) {
   const tags = parseTags(note.tags)
+  const desc = dl(note, lang)
   return (
-    <div className="card" style={{ cursor:'pointer' }} onClick={onClick}>
-      <div style={{ display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:'.75rem' }}>
-        <div style={{ fontWeight:700,fontSize:'.95rem',flex:1,paddingRight:'.5rem' }}>{tl(note,lang)}</div>
-        <div style={{ display:'flex',gap:'.25rem',flexShrink:0 }} onClick={e=>e.stopPropagation()}>
-          {isAdmin && <><button className="btn-icon" style={{ width:26,height:26 }} onClick={onEdit}><Pencil size={12}/></button><button className="btn-icon" style={{ width:26,height:26 }} onClick={onDelete}><Trash2 size={12}/></button></>}
+    <div className="card" style={{ cursor:'pointer',padding:0,overflow:'hidden' }} onClick={onClick}>
+      {/* Desc overlay header */}
+      {desc ? (
+        <div style={{position:'relative',background:'linear-gradient(135deg,rgba(255,123,53,.12),rgba(255,159,87,.06))',padding:'1rem 1rem .7rem',minHeight:64,display:'flex',flexDirection:'column',justifyContent:'flex-end',borderBottom:'1.5px solid var(--border)'}}>
+          <div style={{fontSize:'.78rem',color:'var(--text2)',lineHeight:1.55,fontStyle:'italic',fontFamily:"'Klee One',cursive",overflow:'hidden',display:'-webkit-box',...({'WebkitLineClamp':2,'WebkitBoxOrient':'vertical'} as React.CSSProperties)}}>{desc}</div>
         </div>
-      </div>
-      <div style={{ fontSize:'.83rem',color:'var(--text2)',lineHeight:1.6,marginBottom:'.75rem' }}>{dl(note,lang)}</div>
-      <div style={{ display:'flex',gap:'.4rem',flexWrap:'wrap',alignItems:'center' }}>
-        {note.file_type && <span className="tag">{note.file_type.toUpperCase()}</span>}
-        {tags.slice(0,3).map(t=><span key={t} className="tag tag-gray">{t}</span>)}
-        <span style={{ marginLeft:'auto',fontSize:'.72rem',color:'var(--text3)',fontFamily:"'Space Mono',monospace" }}>{fmtDate(note.updated_at)}</span>
+      ) : null}
+      <div style={{padding:'1rem'}}>
+        <div style={{ display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:'.6rem' }}>
+          <div style={{ fontWeight:900,fontSize:'.93rem',flex:1,paddingRight:'.5rem',fontFamily:"'Nunito',sans-serif" }}>{tl(note,lang)}</div>
+          <div style={{ display:'flex',gap:'.25rem',flexShrink:0 }} onClick={e=>e.stopPropagation()}>
+            {isAdmin && <><button className="btn-icon" style={{ width:24,height:24,borderRadius:'var(--r-sm)' }} onClick={onEdit}><Pencil size={11}/></button><button className="btn-icon" style={{ width:24,height:24,borderRadius:'var(--r-sm)' }} onClick={onDelete}><Trash2 size={11}/></button></>}
+          </div>
+        </div>
+        <div style={{ display:'flex',gap:'.4rem',flexWrap:'wrap',alignItems:'center' }}>
+          {note.file_type && <span className="tag">{note.file_type.toUpperCase()}</span>}
+          {tags.slice(0,3).map(t=><span key={t} className="tag tag-gray">{t}</span>)}
+          <span style={{ marginLeft:'auto',fontSize:'.7rem',color:'var(--text3)',fontFamily:"'Space Mono',monospace" }}>{fmtDate(note.updated_at)}</span>
+        </div>
       </div>
     </div>
   )

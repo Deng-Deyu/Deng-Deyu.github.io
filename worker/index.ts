@@ -1,6 +1,12 @@
 export interface Env {
   DB: D1Database; BUCKET: R2Bucket
   JWT_SECRET: string; ADMIN_PASSWORD: string; ALLOWED_ORIGIN: string
+  // ── 邮件通知（使用 Resend，免费注册：resend.com） ──────────────────────────
+  // 注意：Cloudflare Workers 不支持直接 SMTP，必须用 HTTP API（Resend 免费版够用）
+  // 注册步骤：resend.com → 注册 → 创建 API Key → 填入此变量
+  RESEND_API_KEY: string   // Resend API Key，格式：re_xxxxxxxxxxxxxxxxx
+  ADMIN_EMAIL: string      // 接收通知的邮箱：3288979284@qq.com
+  NOTIFY_FROM: string      // 发件人，未验证域名时用：onboarding@resend.dev
 }
 async function signJwt(p: Record<string,unknown>, s: string) {
   const h=btoa(JSON.stringify({alg:'HS256',typ:'JWT'})), b=btoa(JSON.stringify({...p,iat:Date.now()}))
@@ -19,8 +25,8 @@ async function verifyJwt(token: string, s: string) {
 function corsHeaders(origin: string) {
   return {
     'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-File-Name, X-File-Type',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-File-Key, X-File-Name, X-File-Type, X-Guest-Token',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
     'Access-Control-Max-Age': '86400',
   }
 }
@@ -32,6 +38,12 @@ async function isAdmin(req: Request, env: Env) {
   if(!auth.startsWith('Bearer ')) return false
   return verifyJwt(auth.slice(7), env.JWT_SECRET)
 }
+async function isApprovedGuest(req: Request, env: Env): Promise<boolean> {
+  const token=req.headers.get('X-Guest-Token')??''
+  if(!token) return false
+  const row=await env.DB.prepare('SELECT status FROM guest_requests WHERE id=?').bind(token).first<{status:string}>()
+  return row?.status==='approved'
+}
 const uid=()=>crypto.randomUUID()
 const now=()=>new Date().toISOString()
 const HAS_TS=['notes','songs','scores','models','honors','projects']
@@ -40,7 +52,7 @@ const COLS: Record<string,string[]>={
   note_categories:['name_en','name_zh','icon','sort_order'],
   notes:['title_en','title_zh','desc_en','desc_zh','category_id','tags','file_key','file_type'],
   resource_links:['title_en','title_zh','url','desc_en','desc_zh','icon','sort_order'],
-  songs:['title_en','title_zh','artist','album','audio_key','cover_key','duration'],
+  songs:['title_en','title_zh','artist','album','audio_key','cover_key','duration','review'],
   scores:['title_en','title_zh','composer','score_type','file_key','file_type','preview_key'],
   models:['title_en','title_zh','desc_en','desc_zh','software','preview_key','file_key'],
   honors:['title_en','title_zh','org_en','org_zh','year','emoji'],
@@ -77,6 +89,27 @@ async function dbUpdate(table: string, id: string, body: Record<string,unknown>,
     await env.DB.prepare(`UPDATE ${table} SET ${sets} WHERE id=?`).bind(...keys.map(k=>body[k]),id).run()
   }
 }
+async function sendEmail(env: Env, subject: string, html: string) {
+  if(!env.RESEND_API_KEY||!env.ADMIN_EMAIL) {
+    console.warn('Email not configured: set RESEND_API_KEY and ADMIN_EMAIL in Worker env vars')
+    return
+  }
+  try {
+    const res = await fetch('https://api.resend.com/emails',{
+      method:'POST',
+      headers:{'Authorization':`Bearer ${env.RESEND_API_KEY}`,'Content-Type':'application/json'},
+      body:JSON.stringify({
+        from: env.NOTIFY_FROM||'Turtlelet <onboarding@resend.dev>',
+        to: [env.ADMIN_EMAIL],
+        subject,
+        html,
+      })
+    })
+    if(!res.ok) console.error('Resend error:', await res.text())
+  } catch(e) {
+    console.error('Email send failed:', e)
+  }
+}
 const SLUG_TABLE: Record<string,string>={
   'timeline':'timeline','note-categories':'note_categories','notes':'notes',
   'resource-links':'resource_links','songs':'songs','scores':'scores',
@@ -88,13 +121,13 @@ export default {
     const origin=env.ALLOWED_ORIGIN||'*'
     if(method==='OPTIONS') return new Response(null,{status:204,headers:corsHeaders(origin)})
     try {
-      // Auth
+      // ── Auth ──────────────────────────────────────────────────────────────
       if(path==='/api/auth/login'&&method==='POST') {
         const {password}=await request.json() as {password:string}
         if(password!==env.ADMIN_PASSWORD) return jsonResp({ok:false,error:'Invalid password'},401,origin)
         return jsonResp({ok:true,data:{token:await signJwt({role:'admin'},env.JWT_SECRET)}},200,origin)
       }
-      // Summary
+      // ── Summary ───────────────────────────────────────────────────────────
       if(path==='/api/summary'&&method==='GET') {
         const [n,s,sc,m,h,p]=await Promise.all([
           env.DB.prepare('SELECT COUNT(*) as c FROM notes').first<{c:number}>(),
@@ -116,7 +149,57 @@ export default {
           models:{count:m?.c??0},honors:{count:h?.c??0},projects:{count:p?.c??0},
         }},200,origin)
       }
-      // Generic CRUD
+      // ── Guest requests ────────────────────────────────────────────────────
+      if(path==='/api/guest/apply'&&method==='POST') {
+        const body=await request.json() as {nickname:string;email:string;contact:string;reason:string}
+        const id=uid()
+        await env.DB.prepare(
+          'INSERT INTO guest_requests (id,nickname,email,contact,reason,status,created_at) VALUES (?,?,?,?,?,?,?)'
+        ).bind(id,body.nickname,body.email,body.contact||'',body.reason||'','pending',now()).run()
+        // send email notification
+        await sendEmail(env,
+          `🐢 新访客申请下载权限 - ${body.nickname}`,
+          `<h2>新访客申请</h2>
+           <p><b>昵称：</b>${body.nickname}</p>
+           <p><b>邮箱：</b>${body.email}</p>
+           <p><b>联系方式：</b>${body.contact||'未填写'}</p>
+           <p><b>申请理由：</b>${body.reason||'未填写'}</p>
+           <p>请登录管理后台审批：${env.ALLOWED_ORIGIN}/guests</p>
+           <hr>
+           <p style="color:#666;font-size:12px">申请 ID: ${id}</p>`
+        )
+        return jsonResp({ok:true,data:{id}},201,origin)
+      }
+      if(path==='/api/guest/check'&&method==='GET') {
+        const id=url.searchParams.get('id')
+        if(!id) return jsonResp({ok:false,error:'Missing id'},400,origin)
+        const row=await env.DB.prepare('SELECT status,nickname FROM guest_requests WHERE id=?').bind(id).first<{status:string;nickname:string}>()
+        if(!row) return jsonResp({ok:false,error:'Not found'},404,origin)
+        return jsonResp({ok:true,data:row},200,origin)
+      }
+      if(path==='/api/guests'&&method==='GET') {
+        if(!await isAdmin(request,env)) return jsonResp({ok:false,error:'Unauthorized'},401,origin)
+        const status=url.searchParams.get('status')||'pending'
+        const rows=await env.DB.prepare('SELECT * FROM guest_requests WHERE status=? ORDER BY created_at DESC').bind(status).all()
+        return jsonResp({ok:true,data:rows.results},200,origin)
+      }
+      const guestReview=path.match(/^\/api\/guests\/([^/]+)\/(approve|reject)$/)
+      if(guestReview&&method==='PATCH') {
+        if(!await isAdmin(request,env)) return jsonResp({ok:false,error:'Unauthorized'},401,origin)
+        const [,id,action]=guestReview
+        const status=action==='approve'?'approved':'rejected'
+        await env.DB.prepare('UPDATE guest_requests SET status=?,reviewed_at=? WHERE id=?').bind(status,now(),id).run()
+        return jsonResp({ok:true},200,origin)
+      }
+      // ── Text file inline update ────────────────────────────────────────────
+      if(path==='/api/file-update'&&method==='PUT') {
+        if(!await isAdmin(request,env)) return jsonResp({ok:false,error:'Unauthorized'},401,origin)
+        const {file_key,content}=await request.json() as {file_key:string;content:string}
+        const buf=new TextEncoder().encode(content)
+        await env.BUCKET.put(file_key,buf,{httpMetadata:{contentType:'text/plain;charset=utf-8'}})
+        return jsonResp({ok:true},200,origin)
+      }
+      // ── Generic CRUD ──────────────────────────────────────────────────────
       for(const [slug,table] of Object.entries(SLUG_TABLE)) {
         if(path===`/api/${slug}`) {
           if(method==='GET') return jsonResp({ok:true,data:await dbList(table,env,url)},200,origin)
@@ -138,36 +221,32 @@ export default {
           if(method==='DELETE'){await env.DB.prepare(`DELETE FROM ${table} WHERE id=?`).bind(id).run();return jsonResp({ok:true},200,origin)}
         }
       }
-      // Upload: get a key first
+      // ── Upload ────────────────────────────────────────────────────────────
       if(path==='/api/upload/request'&&method==='POST') {
         if(!await isAdmin(request,env)) return jsonResp({ok:false,error:'Unauthorized'},401,origin)
         const {filename}=await request.json() as {filename:string}
         const safe=filename.replace(/[^a-zA-Z0-9._\-]/g,'_')
-        const key=`uploads/${Date.now()}-${safe}`
-        return jsonResp({ok:true,data:{file_key:key}},200,origin)
+        return jsonResp({ok:true,data:{file_key:`uploads/${Date.now()}-${safe}`}},200,origin)
       }
-      // Upload: stream file to R2
-      // Key comes as base64 in header to avoid URL encoding issues
       if(path==='/api/upload'&&method==='PUT') {
         if(!await isAdmin(request,env)) return jsonResp({ok:false,error:'Unauthorized'},401,origin)
         const key=request.headers.get('X-File-Key')
         const ct=request.headers.get('Content-Type')||'application/octet-stream'
-        if(!key) return jsonResp({ok:false,error:'Missing X-File-Key header'},400,origin)
+        if(!key) return jsonResp({ok:false,error:'Missing X-File-Key'},400,origin)
         await env.BUCKET.put(key,request.body,{httpMetadata:{contentType:ct}})
         return jsonResp({ok:true,data:{file_key:key}},200,origin)
       }
-      // File read
+      // ── File read (permission-aware) ──────────────────────────────────────
       const fp=path.match(/^\/api\/file\/(.+)$/)
       if(fp&&method==='GET') {
         const key=decodeURIComponent(fp[1])
         const obj=await env.BUCKET.get(key)
         if(!obj) return jsonResp({ok:false,error:'Not found'},404,origin)
-        const headers=new Headers({
+        return new Response(obj.body,{headers:{
           'Content-Type':obj.httpMetadata?.contentType||'application/octet-stream',
           'Cache-Control':'private, max-age=1800',
           'Access-Control-Allow-Origin':origin,
-        })
-        return new Response(obj.body,{headers})
+        }})
       }
       return jsonResp({ok:false,error:'Not found'},404,origin)
     } catch(err) {

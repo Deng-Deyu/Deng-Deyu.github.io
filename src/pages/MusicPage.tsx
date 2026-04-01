@@ -9,8 +9,8 @@ import type { Song, Score, ViewMode } from '@/types'
 // ── Song editor ───────────────────────────────────────────────────────────────
 function SongEditor({ item, onSave, onClose }: { item?: Song; onSave:(d:Record<string,unknown>)=>Promise<void>; onClose:()=>void }) {
   const { lang } = useAppStore()
-  type SongForm = { title_en:string;title_zh:string;artist:string;album:string;duration:number;audio_key:string;cover_key:string }
-  const [form, setForm] = useState<SongForm>({ title_en:item?.title_en??'',title_zh:item?.title_zh??'',artist:item?.artist??'',album:item?.album??'',duration:item?.duration??0,audio_key:item?.audio_key??'',cover_key:item?.cover_key??'' })
+  type SongForm = { title_en:string;title_zh:string;artist:string;album:string;duration:number;audio_key:string;cover_key:string;review:string }
+  const [form, setForm] = useState<SongForm>({ title_en:item?.title_en??'',title_zh:item?.title_zh??'',artist:item?.artist??'',album:item?.album??'',duration:item?.duration??0,audio_key:item?.audio_key??'',cover_key:item?.cover_key??'',review:item?.review??'' })
   const [saving, setSaving] = useState(false)
   async function submit(e: React.FormEvent) { e.preventDefault(); setSaving(true); await onSave({...form} as unknown as Record<string,unknown>); setSaving(false); onClose() }
   return (
@@ -21,9 +21,16 @@ function SongEditor({ item, onSave, onClose }: { item?: Song; onSave:(d:Record<s
           {[['title_en','Title (EN)','标题（英）'],['title_zh','Title (ZH)','标题（中）'],['artist','Artist','歌手'],['album','Album','专辑']].map(([k,en,zh])=>(
             <div className="field" key={k}><label>{lang==='zh'?zh:en}</label><input value={(form as Record<string,unknown>)[k] as string} onChange={e=>setForm(v=>({...v,[k]:e.target.value}))}/></div>
           ))}
+          <div className="field"><label>{lang==='zh'?'我的评价（选填）':'My review (optional)'}</label>
+            <textarea value={form.review} onChange={e=>setForm(v=>({...v,review:e.target.value}))} placeholder={lang==='zh'?'一句话写下你对这首歌的感受…':'A line about this song…'} style={{minHeight:60}}/>
+          </div>
           <div className="field"><label>{lang==='zh'?'时长（秒）':'Duration (sec)'}</label><input type="number" value={form.duration} onChange={e=>setForm(v=>({...v,duration:+e.target.value}))}/></div>
           <div className="field"><label>{lang==='zh'?'音频文件':'Audio file'}</label>
-            <FileUpload accept=".mp3,.wav,.flac,.ogg,.m4a,.aac,.opus,.ape,.wma,.aiff" currentKey={form.audio_key||null} onUploaded={k=>setForm(v=>({...v,audio_key:k}))}/>
+            <FileUpload accept=".mp3,.wav,.flac,.ogg,.m4a,.aac,.opus,.ape,.wma,.aiff" currentKey={form.audio_key||null} onUploaded={(k,fname)=>setForm(v=>({
+                ...v,audio_key:k,
+                title_en:v.title_en||titleFromFilename(fname||''),
+                title_zh:v.title_zh||titleFromFilename(fname||''),
+              }))}/>
           </div>
           <div className="field"><label>{lang==='zh'?'封面图':'Cover image'}</label>
             <FileUpload accept=".jpg,.jpeg,.png,.webp" currentKey={form.cover_key||null} onUploaded={k=>setForm(v=>({...v,cover_key:k}))}/>
@@ -171,6 +178,7 @@ function SongsTab({ view }: { view: ViewMode }) {
                         <div style={{ flex:1,minWidth:0 }}>
                           <div style={{ fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{tl(song,lang)}</div>
                           <div style={{ fontSize:'.78rem',color:'var(--text3)',fontFamily:"'Space Mono',monospace" }}>{song.album} {song.duration?'· '+fmtDuration(song.duration):''}</div>
+                        {song.review&&<div className="song-review" style={{marginTop:'.35rem'}}>{song.review}</div>}
                         </div>
                         <div style={{ display:'flex',gap:'.3rem',flexShrink:0 }} onClick={e=>e.stopPropagation()}>
                           {isAdmin&&<><button className="btn-icon" style={{ width:28,height:28 }} onClick={()=>setEditing(song)}><Pencil size={12}/></button><button className="btn-icon" style={{ width:28,height:28 }} onClick={()=>del(song.id)}><Trash2 size={12}/></button></>}

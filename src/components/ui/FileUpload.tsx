@@ -5,7 +5,7 @@ import { fileApi } from '@/lib/api'
 
 interface Props {
   accept?: string
-  onUploaded: (key: string) => void
+  onUploaded: (key: string, filename?: string) => void
   currentKey?: string | null
   hint?: string
 }
@@ -22,7 +22,7 @@ export function FileUpload({ accept, onUploaded, currentKey, hint }: Props) {
     setUploading(true); setErr(''); setFilename('')
     const key = await fileApi.upload(token, file)
     setUploading(false)
-    if (key) { setFilename(file.name); onUploaded(key) }
+    if (key) { setFilename(file.name); onUploaded(key, file.name) }
     else setErr(lang === 'zh' ? '上传失败，请重试' : 'Upload failed, please retry')
   }
 

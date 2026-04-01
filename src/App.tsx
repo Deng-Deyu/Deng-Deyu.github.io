@@ -7,6 +7,7 @@ import { MusicPage }    from '@/pages/MusicPage'
 import { ProjectsPage } from '@/pages/ProjectsPage'
 import { ModelingPage, HonorsPage } from '@/pages/ModelingHonorsPages'
 import { FileViewer }   from '@/pages/FileViewer'
+import { GuestsPage }   from '@/pages/GuestsPage'
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="/projects"  element={<ProjectsPage />} />
           <Route path="/modeling"  element={<ModelingPage />} />
           <Route path="/honors"    element={<HonorsPage />} />
+          <Route path="/guests"    element={<GuestsPage />} />
           <Route path="/view/:id"  element={<FileViewer />} />
           <Route path="*"          element={<NotFound />} />
         </Routes>
@@ -33,8 +35,8 @@ function NotFound() {
   return (
     <div style={{ display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:'80vh',gap:'1rem' }}>
       <div style={{ fontSize:'4rem',animation:'float 3s ease-in-out infinite' }}>🐢</div>
-      <h1 style={{ fontSize:'1.4rem',fontWeight:800,letterSpacing:'-.02em' }}>404 — Page not found</h1>
-      <a href="/" style={{ color:'var(--orange-b)',fontFamily:"'Space Mono',monospace",fontSize:'.82rem' }}>← Back home</a>
+      <h1 style={{ fontSize:'1.4rem',fontWeight:900,fontFamily:"'Nunito',sans-serif" }}>404 — 找不到页面</h1>
+      <a href="/" style={{ color:'var(--orange-b)',fontFamily:"'Space Mono',monospace",fontSize:'.82rem' }}>← 回到首页</a>
     </div>
   )
 }

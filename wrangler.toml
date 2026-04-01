@@ -16,4 +16,4 @@ bucket_name = "turtlelet-files"
 # ─── 环境变量（在 Cloudflare Dashboard 的 Workers & Pages > 你的Worker > Settings > Variables 里设置） ───
 # JWT_SECRET        = "asdj&#4dahophop284IS*Hiop@#Hawjjkd84s"
 # ADMIN_PASSWORD    = "@2025zju4010DDY"
-# ALLOWED_ORIGIN    = "https://deng-deyu-github-io.pages.dev/" 
+# ALLOWED_ORIGIN    = "https://deng-deyu-github-io.pages.dev"  (或你的自定义域名)
