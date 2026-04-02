@@ -35,8 +35,8 @@ function HeroSection() {
         {/* description */}
         <p style={{marginTop:'2rem',fontSize:'clamp(.95rem,1.8vw,1.1rem)',color:'var(--text2)',maxWidth:480,marginInline:'auto',animation:'fade-up .9s .3s ease both',lineHeight:1.75,letterSpacing:'.01em'}}>
           {lang==='zh'
-            ?'工程学生 · 音乐爱好者 · 建模师。\n构建事物，学习知识，记录每段旅程。'
-            :'Engineering student · music lover · 3D modeler.\nBuilding things, learning endlessly.'}
+            ?'热爱技术和音乐的学生。\n构建事物，学习知识，记录每段旅程。'
+            :'Engineering student and music lover\nBuilding things, learning endlessly.'}
         </p>
         {/* tags */}
         <div style={{display:'flex',flexWrap:'wrap',gap:'.45rem',justifyContent:'center',marginTop:'1.5rem',animation:'fade-up .9s .42s ease both'}}>
