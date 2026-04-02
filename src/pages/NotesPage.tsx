@@ -6,6 +6,7 @@ import { notesApi, noteCatApi, resourceApi, tl, dl, parseTags, fmtDate, titleFro
 import { ViewToggle } from '@/components/ui/ViewToggle'
 import { FileUpload } from '@/components/ui/FileUpload'
 import type { Note, NoteCategory, ResourceLink, ViewMode } from '@/types'
+import { titleFromFilename } from "@/lib/api"
 
 // ── Category editor modal ─────────────────────────────────────────────────────
 function CatEditor({ item, onSave, onClose }: { item?: NoteCategory; onSave: (d: Record<string,unknown>) => Promise<void>; onClose: () => void }) {

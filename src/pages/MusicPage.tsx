@@ -5,6 +5,7 @@ import { songsApi, scoresApi, fileApi, tl, fmtDuration } from '@/lib/api'
 import { ViewToggle } from '@/components/ui/ViewToggle'
 import { FileUpload } from '@/components/ui/FileUpload'
 import type { Song, Score, ViewMode } from '@/types'
+import { titleFromFilename } from "@/lib/api"
 
 // ── Song editor ───────────────────────────────────────────────────────────────
 function SongEditor({ item, onSave, onClose }: { item?: Song; onSave:(d:Record<string,unknown>)=>Promise<void>; onClose:()=>void }) {
