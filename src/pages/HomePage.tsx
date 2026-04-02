@@ -14,13 +14,13 @@ function HeroSection() {
       {/* refined grid - finer lines, more subtle */}
       <div style={{position:'absolute',inset:0,backgroundImage:'linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px)',backgroundSize:'80px 80px',maskImage:'radial-gradient(ellipse 70% 70% at 50% 50%,black 0%,transparent 75%)',WebkitMaskImage:'radial-gradient(ellipse 70% 70% at 50% 50%,black 0%,transparent 75%)',opacity:.6}}/>
       {/* ambient glow — two layers for depth */}
-      <div style={{position:'absolute',width:900,height:900,borderRadius:'50%',background:'radial-gradient(circle,rgba(255,107,26,.09) 0%,transparent 65%)',top:'50%',left:'50%',transform:'translate(-50%,-58%)',pointerEvents:'none',animation:'pulse-glow 8s ease-in-out infinite'}}/>
+      <div style={{position:'absolute',width:900,height:900,borderRadius:'50%',background:'radial-gradient(circle,var(--glow-rgb,rgba(45,179,106,.09) 0%,transparent 65%)',top:'50%',left:'50%',transform:'translate(-50%,-58%)',pointerEvents:'none',animation:'pulse-glow 8s ease-in-out infinite'}}/>
       <div style={{position:'absolute',width:400,height:400,borderRadius:'50%',background:'radial-gradient(circle,rgba(255,154,60,.07) 0%,transparent 65%)',top:'40%',left:'55%',transform:'translate(-50%,-50%)',pointerEvents:'none',animation:'pulse-glow 5s ease-in-out infinite .5s'}}/>
 
       <div style={{position:'relative',zIndex:2,textAlign:'center',maxWidth:820}}>
         {/* badge */}
-        <div style={{display:'inline-flex',alignItems:'center',gap:'.5rem',background:'var(--bg3)',border:'1px solid var(--border)',borderRadius:100,padding:'.32rem .95rem',fontSize:'.73rem',fontFamily:"'Space Mono',monospace",color:'var(--orange-b)',marginBottom:'2.2rem',letterSpacing:'.06em',animation:'fade-up .9s ease both'}}>
-          <span style={{width:5,height:5,borderRadius:'50%',background:'var(--orange-a)',animation:'blink 2s ease-in-out infinite'}}/>
+        <div style={{display:'inline-flex',alignItems:'center',gap:'.5rem',background:'var(--bg3)',border:'1px solid var(--border)',borderRadius:100,padding:'.32rem .95rem',fontSize:'.73rem',fontFamily:"'Space Mono',monospace",color:'var(--accent)',marginBottom:'2.2rem',letterSpacing:'.06em',animation:'fade-up .9s ease both'}}>
+          <span style={{width:5,height:5,borderRadius:'50%',background:'var(--accent)',animation:'blink 2s ease-in-out infinite'}}/>
           {lang==='zh'?'开放合作 · 学生 · 创造者':'Open to collaboration · Student · Creator'}
         </div>
         {/* hi label */}
@@ -30,7 +30,7 @@ function HeroSection() {
         {/* main name — Fraunces for editorial weight */}
         <h1 style={{fontFamily:"'Syne',sans-serif",fontSize:'clamp(4rem,11vw,9rem)',fontWeight:800,lineHeight:.9,letterSpacing:'-.05em',animation:'fade-up .9s .18s ease both',position:'relative',display:'inline-block'}}>
           <span className="grad-text">Turtle</span><span style={{color:'var(--text)'}}>let</span>
-          <span style={{position:'absolute',bottom:-6,left:0,right:0,height:2,borderRadius:1,background:'linear-gradient(90deg,var(--orange-a),var(--orange-b),var(--orange-c))',transform:'scaleX(0)',transformOrigin:'left',animation:'underline-in .7s 1s cubic-bezier(.4,0,.2,1) forwards'}}/>
+          <span style={{position:'absolute',bottom:-6,left:0,right:0,height:2,borderRadius:1,background:'linear-gradient(90deg,var(--accent),var(--accent),var(--accent))',transform:'scaleX(0)',transformOrigin:'left',animation:'underline-in .7s 1s cubic-bezier(.4,0,.2,1) forwards'}}/>
         </h1>
         {/* description */}
         <p style={{marginTop:'2rem',fontSize:'clamp(.95rem,1.8vw,1.1rem)',color:'var(--text2)',maxWidth:480,marginInline:'auto',animation:'fade-up .9s .3s ease both',lineHeight:1.75,letterSpacing:'.01em'}}>
@@ -41,7 +41,7 @@ function HeroSection() {
         {/* tags */}
         <div style={{display:'flex',flexWrap:'wrap',gap:'.45rem',justifyContent:'center',marginTop:'1.5rem',animation:'fade-up .9s .42s ease both'}}>
           {tags.map(t=>(
-            <span key={t} style={{padding:'.28rem .8rem',background:'var(--bg3)',border:'1px solid var(--border)',borderRadius:100,fontSize:'.73rem',color:'var(--text3)',fontFamily:"'Space Mono',monospace",letterSpacing:'.03em'}}>{t}</span>
+            <span key={t} style={{padding:'.28rem .8rem',background:'var(--bg3)',border:'1px solid var(--border)',borderRadius:100,fontSize:'.72rem',color:'var(--text3)',fontFamily:"'Space Mono',monospace",letterSpacing:'.03em'}}>{t}</span>
           ))}
         </div>
         {/* CTAs */}
@@ -56,7 +56,7 @@ function HeroSection() {
       </div>
       {/* scroll hint */}
       <div style={{position:'absolute',bottom:'2.2rem',left:'50%',transform:'translateX(-50%)',display:'flex',flexDirection:'column',alignItems:'center',gap:'.35rem',color:'var(--text3)',fontSize:'.65rem',fontFamily:"'Space Mono',monospace",letterSpacing:'.12em',animation:'fade-up .9s 1.1s ease both'}}>
-        <div style={{width:1,height:36,background:'linear-gradient(to bottom,var(--orange-a),transparent)',animation:'float 2s ease-in-out infinite'}}/>
+        <div style={{width:1,height:36,background:'linear-gradient(to bottom,var(--accent),transparent)',animation:'float 2s ease-in-out infinite'}}/>
         <span>{lang==='zh'?'滚动':'SCROLL'}</span>
       </div>
     </section>
@@ -66,7 +66,7 @@ function HeroSection() {
 // ── Module Cards ──────────────────────────────────────────────────────────────
 const MODULES = [
   {to:'/notes',    Icon:BookOpen, en:'Notes & Resources', zh:'笔记与资料',    desc_en:'Study notes, reference material, and curated resource links.', desc_zh:'按学科整理的学习笔记与推荐资源。',   color:'#60a5fa'},
-  {to:'/music',    Icon:Music,    en:'Music Collection',  zh:'音乐收藏',      desc_en:'Song collection by artist, plus sheet music in multiple formats.', desc_zh:'按歌手分类的音乐，以及多格式乐谱下载。', color:'var(--orange-b)'},
+  {to:'/music',    Icon:Music,    en:'Music Collection',  zh:'音乐收藏',      desc_en:'Song collection by artist, plus sheet music in multiple formats.', desc_zh:'按歌手分类的音乐，以及多格式乐谱下载。', color:'var(--accent)'},
   {to:'/projects', Icon:Code2,    en:'Projects',          zh:'软件项目',      desc_en:'My apps, tools, and plugins — plus software recommendations.', desc_zh:'我的应用、工具与插件，以及软件推荐。', color:'#a78bfa'},
   {to:'/modeling', Icon:Box,      en:'3D Modeling',       zh:'建模与设计',    desc_en:'3D models and CAD designs built with SolidWorks and Blender.', desc_zh:'SolidWorks 与 Blender 等软件创建的三维模型。', color:'#34d399'},
   {to:'/honors',   Icon:Award,    en:'Honors & Works',    zh:'荣誉与作品',    desc_en:'Awards, certificates, and notable achievements.', desc_zh:'竞赛获奖、证书与代表性作品。',              color:'#fbbf24'},
@@ -179,16 +179,16 @@ function JourneySection() {
           <div className="reveal">
             <span className="section-label">// about me</span>
             <h2 className="section-title" style={{marginBottom:'1.5rem'}}>{lang==='zh'?'我的心路历程':'My Journey'}</h2>
-            {[{en:"I'm <strong style='color:var(--orange-b)'>Turtlelet</strong> — a student curious about engineering, math, music, and design.",zh:"我是 <strong style='color:var(--orange-b)'>Turtlelet</strong>——对工程、数学、音乐和设计充满好奇心的学生。"},
+            {[{en:"I'm <strong style='color:var(--accent)'>Turtlelet</strong> — a student curious about engineering, math, music, and design.",zh:"我是 <strong style='color:var(--accent)'>Turtlelet</strong>——对工程、数学、音乐和设计充满好奇心的学生。"},
               {en:"This site is my digital garden — notes, music, models, and moments worth remembering.",zh:"这里是我的数字花园——笔记、音乐、模型，还有值得记录的每个瞬间。"},
-              {en:"<strong style='color:var(--orange-b)'>Currently:</strong> Studying, building, always learning.",zh:"<strong style='color:var(--orange-b)'>目前：</strong>在学习、在创作，持续成长。"}
+              {en:"<strong style='color:var(--accent)'>Currently:</strong> Studying, building, always learning.",zh:"<strong style='color:var(--accent)'>目前：</strong>在学习、在创作，持续成长。"}
             ].map((p,i)=>(
               <p key={i} style={{fontSize:'.97rem',color:'var(--text2)',lineHeight:1.85,marginBottom:'1rem'}} dangerouslySetInnerHTML={{__html:lang==='zh'?p.zh:p.en}}/>
             ))}
           </div>
           <div className="reveal">
             {isAdmin&&(
-              <button onClick={()=>setEditing('new')} style={{display:'flex',alignItems:'center',gap:'.4rem',marginBottom:'1.5rem',color:'var(--orange-b)',fontSize:'.8rem',fontFamily:"'Space Mono',monospace",background:'none',border:'none',cursor:'pointer'}}>
+              <button onClick={()=>setEditing('new')} style={{display:'flex',alignItems:'center',gap:'.4rem',marginBottom:'1.5rem',color:'var(--accent)',fontSize:'.8rem',fontFamily:"'Space Mono',monospace",background:'none',border:'none',cursor:'pointer'}}>
                 <Plus size={13}/>{lang==='zh'?'添加节点':'Add entry'}
               </button>
             )}
@@ -201,7 +201,7 @@ function JourneySection() {
                 <div>
                   <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:'.5rem'}}>
                     <div>
-                      <div style={{fontFamily:"'Space Mono',monospace",fontSize:'.68rem',color:'var(--orange-b)',letterSpacing:'.06em',marginBottom:'.2rem'}}>{item.year}</div>
+                      <div style={{fontFamily:"'Space Mono',monospace",fontSize:'.68rem',color:'var(--accent)',letterSpacing:'.06em',marginBottom:'.2rem'}}>{item.year}</div>
                       <div style={{fontWeight:700,fontSize:'.92rem',marginBottom:'.2rem'}}>{lang==='zh'?item.title_zh:item.title_en}</div>
                       <div style={{fontSize:'.83rem',color:'var(--text2)',lineHeight:1.65}}>{lang==='zh'?item.desc_zh:item.desc_en}</div>
                     </div>
@@ -259,7 +259,7 @@ function ContactSection() {
             ))}
           </div>
           <div style={{background:'var(--card-bg)',border:'1px solid var(--card-border)',borderRadius:'var(--radius)',padding:'2.2rem',backdropFilter:'blur(12px)'}} className="reveal">
-            <h3 style={{fontSize:'1.4rem',fontWeight:800,marginBottom:'.65rem',letterSpacing:'-.02em'}}>{lang==='zh'?'欢迎联系 🐢':"Let's connect 🐢"}</h3>
+            <h3 style={{fontSize:'1.4rem',fontWeight:800,marginBottom:'.65rem',letterSpacing:'-.02em'}}>{lang==='zh'?'欢迎联系':"Let's connect"}</h3>
             <p style={{color:'var(--text2)',fontSize:'.88rem',lineHeight:1.75,marginBottom:'1.4rem'}}>
               {lang==='zh'?'无论你想合作、交流还是打个招呼，我都很高兴收到你的消息。':'Whether you want to collaborate, share ideas, or just say hi — always happy to hear from you.'}
             </p>

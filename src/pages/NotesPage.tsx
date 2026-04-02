@@ -270,8 +270,8 @@ function NoteCardItem({ note, lang, isAdmin, onEdit, onDelete, onClick }: { note
     <div className="card" style={{ cursor:'pointer',padding:0,overflow:'hidden' }} onClick={onClick}>
       {/* Desc overlay header */}
       {desc ? (
-        <div style={{position:'relative',background:'linear-gradient(135deg,rgba(255,123,53,.12),rgba(255,159,87,.06))',padding:'1rem 1rem .7rem',minHeight:64,display:'flex',flexDirection:'column',justifyContent:'flex-end',borderBottom:'1.5px solid var(--border)'}}>
-          <div style={{fontSize:'.78rem',color:'var(--text2)',lineHeight:1.55,fontStyle:'italic',fontFamily:"'Klee One',cursive",overflow:'hidden',display:'-webkit-box',...({'WebkitLineClamp':2,'WebkitBoxOrient':'vertical'} as React.CSSProperties)}}>{desc}</div>
+        <div style={{position:'relative',background:'linear-gradient(135deg,var(--glow-rgb,rgba(45,179,106,.12),var(--glow-rgb,rgba(45,179,106,.06))',padding:'1rem 1rem .7rem',minHeight:64,display:'flex',flexDirection:'column',justifyContent:'flex-end',borderBottom:'1.5px solid var(--border)'}}>
+          <div style={{fontSize:'.78rem',color:'var(--text2)',lineHeight:1.55,fontStyle:'italic',fontFamily:"'Nunito',sans-serif",overflow:'hidden',display:'-webkit-box',...({'WebkitLineClamp':2,'WebkitBoxOrient':'vertical'} as React.CSSProperties)}}>{desc}</div>
         </div>
       ) : null}
       <div style={{padding:'1rem'}}>

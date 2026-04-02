@@ -24,11 +24,10 @@ export function Navbar() {
       <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:100,background:'var(--nav-bg)',backdropFilter:'blur(24px) saturate(160%)',WebkitBackdropFilter:'blur(24px)',borderBottom:'1.5px solid var(--border)'}}>
         <div style={{maxWidth:1160,margin:'0 auto',padding:'0 1.5rem',height:64,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           {/* Logo */}
-          <Link to="/" style={{fontFamily:"'Nunito',sans-serif",fontWeight:900,fontSize:'1.1rem',display:'flex',alignItems:'center',gap:'.4rem'}}>
-            <span style={{fontSize:'1.3rem',animation:'wiggle 3s ease-in-out infinite'}}>🐢</span>
+          <Link to="/" style={{fontFamily:"'Nunito',sans-serif",fontWeight:900,fontSize:'1.08rem',display:'flex',alignItems:'center',gap:'.5rem'}}>
             <span className="grad-text">Turtlelet</span>
-            <span style={{fontFamily:"'Klee One',cursive",fontSize:'.72rem',color:'var(--text3)',fontWeight:400,marginLeft:'.1rem'}}>
-              {lang==='zh'?'小龟':''}
+            <span style={{fontFamily:"'Space Mono',monospace",fontSize:'.65rem',color:'var(--text3)',fontWeight:400,opacity:.7}}>
+              {lang==='zh'?'· 小龟':''}
             </span>
           </Link>
 
@@ -37,7 +36,7 @@ export function Navbar() {
             {NAV.map(n=>{
               const active=loc.pathname.startsWith(n.to)
               return (
-                <Link key={n.to} to={n.to} style={{display:'flex',alignItems:'center',gap:'.38rem',padding:'.38rem .85rem',borderRadius:'var(--r-xl)',fontSize:'.83rem',fontWeight:800,color:active?'var(--orange-b)':'var(--text2)',background:active?'rgba(255,123,53,.1)':'transparent',transition:'all var(--trans)'}}>
+                <Link key={n.to} to={n.to} style={{display:'flex',alignItems:'center',gap:'.38rem',padding:'.38rem .85rem',borderRadius:'var(--r-xl)',fontSize:'.83rem',fontWeight:800,color:active?'var(--accent)':'var(--text2)',background:active?'var(--glow-rgb,rgba(45,179,106,.1)':'transparent',transition:'all var(--trans)'}}>
                   <n.Icon size={13}/>{lang==='zh'?n.zh:n.en}
                 </Link>
               )
@@ -78,13 +77,13 @@ export function Navbar() {
           const isRoot=n.to==='/'
           const active=isRoot?(loc.pathname==='/'):(loc.pathname.startsWith(n.to))
           return (
-            <Link key={n.to} to={n.to} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'.18rem',padding:'.35rem .4rem',color:active?'var(--orange-b)':'var(--text3)',fontSize:'.58rem',fontWeight:800,minWidth:44,textAlign:'center'}}>
+            <Link key={n.to} to={n.to} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'.18rem',padding:'.35rem .4rem',color:active?'var(--accent)':'var(--text3)',fontSize:'.58rem',fontWeight:800,minWidth:44,textAlign:'center'}}>
               <n.Icon size={19}/>{lang==='zh'?n.zh:n.en}
             </Link>
           )
         })}
         {isAdmin
-          ?<button onClick={logout} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'.18rem',background:'none',border:'none',color:'var(--orange-b)',fontSize:'.58rem',padding:'.35rem .4rem',cursor:'pointer',fontWeight:800}}><LogOut size={19}/>{lang==='zh'?'退出':'Out'}</button>
+          ?<button onClick={logout} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'.18rem',background:'none',border:'none',color:'var(--accent)',fontSize:'.58rem',padding:'.35rem .4rem',cursor:'pointer',fontWeight:800}}><LogOut size={19}/>{lang==='zh'?'退出':'Out'}</button>
           :<button onClick={()=>setLoginOpen(true)} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'.18rem',background:'none',border:'none',color:'var(--text3)',fontSize:'.58rem',padding:'.35rem .4rem',cursor:'pointer',fontWeight:800}}><ShieldCheck size={19}/>{lang==='zh'?'登录':'Login'}</button>
         }
       </nav>

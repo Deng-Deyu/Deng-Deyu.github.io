@@ -34,9 +34,8 @@ export default function App() {
 function NotFound() {
   return (
     <div style={{ display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:'80vh',gap:'1rem' }}>
-      <div style={{ fontSize:'4rem',animation:'float 3s ease-in-out infinite' }}>🐢</div>
-      <h1 style={{ fontSize:'1.4rem',fontWeight:900,fontFamily:"'Nunito',sans-serif" }}>404 — 找不到页面</h1>
-      <a href="/" style={{ color:'var(--orange-b)',fontFamily:"'Space Mono',monospace",fontSize:'.82rem' }}>← 回到首页</a>
+      <h1 style={{ fontSize:'1.4rem',fontWeight:900,fontFamily:"'Nunito',sans-serif",letterSpacing:'-.02em' }}>404 — 找不到页面</h1>
+      <a href="/" style={{ color:'var(--accent)',fontFamily:"'Space Mono',monospace",fontSize:'.82rem' }}>← 回到首页</a>
     </div>
   )
 }

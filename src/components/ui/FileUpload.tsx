@@ -33,15 +33,15 @@ export function FileUpload({ accept, onUploaded, currentKey, hint }: Props) {
       <label style={{
         display:'flex',alignItems:'center',gap:'.6rem',
         padding:'.6rem .85rem',background:'var(--bg3)',
-        border:`1px solid ${err?'var(--orange-a)':'var(--border)'}`,
+        border:`1px solid ${err?'var(--accent)':'var(--border)'}`,
         borderRadius:'var(--radius-sm)',cursor:'pointer',
         fontSize:'.85rem',color:'var(--text2)',transition:'border-color var(--trans)',
       }}
       onMouseEnter={e=>(e.currentTarget as HTMLLabelElement).style.borderColor='var(--border-h)'}
-      onMouseLeave={e=>(e.currentTarget as HTMLLabelElement).style.borderColor=err?'var(--orange-a)':'var(--border)'}
+      onMouseLeave={e=>(e.currentTarget as HTMLLabelElement).style.borderColor=err?'var(--accent)':'var(--border)'}
       >
         {uploading
-          ? <span style={{width:14,height:14,border:'2px solid var(--orange-b)',borderTopColor:'transparent',borderRadius:'50%',animation:'spin .7s linear infinite',flexShrink:0}}/>
+          ? <span style={{width:14,height:14,border:'2px solid var(--accent)',borderTopColor:'transparent',borderRadius:'50%',animation:'spin .7s linear infinite',flexShrink:0}}/>
           : filename || existingName
             ? <CheckCircle size={14} style={{color:'#34d399',flexShrink:0}}/>
             : <Upload size={14} style={{flexShrink:0}}/>
@@ -54,7 +54,7 @@ export function FileUpload({ accept, onUploaded, currentKey, hint }: Props) {
       </label>
       {hint && !err && <p style={{fontSize:'.72rem',color:'var(--text3)',marginTop:'.3rem'}}>{hint}</p>}
       {err && (
-        <p style={{display:'flex',alignItems:'center',gap:'.3rem',fontSize:'.75rem',color:'var(--orange-a)',marginTop:'.3rem'}}>
+        <p style={{display:'flex',alignItems:'center',gap:'.3rem',fontSize:'.75rem',color:'var(--accent)',marginTop:'.3rem'}}>
           <AlertCircle size={12}/>{err}
         </p>
       )}

@@ -39,8 +39,8 @@ export function GuestModal({ onClose }: Props) {
 
   const statusLabel = (s:string|null) => {
     if(s==='approved') return {text:lang==='zh'?'✅ 已批准！你现在可以下载文件了':'✅ Approved! You can now download files.',color:'#22c55e'}
-    if(s==='rejected') return {text:lang==='zh'?'❌ 申请被拒绝':'❌ Request rejected.',color:'var(--orange-a)'}
-    if(s==='pending')  return {text:lang==='zh'?'⏳ 等待审批中，请稍后再查询':'⏳ Pending review, check back later.',color:'var(--orange-b)'}
+    if(s==='rejected') return {text:lang==='zh'?'❌ 申请被拒绝':'❌ Request rejected.',color:'var(--accent)'}
+    if(s==='pending')  return {text:lang==='zh'?'⏳ 等待审批中，请稍后再查询':'⏳ Pending review, check back later.',color:'var(--accent)'}
     return null
   }
 
@@ -49,7 +49,7 @@ export function GuestModal({ onClose }: Props) {
       <div className="modal" style={{maxWidth:440}}>
         <div className="modal-header">
           <div style={{display:'flex',alignItems:'center',gap:'.6rem'}}>
-            <Users size={18} style={{color:'var(--orange-b)'}}/>
+            <Users size={18} style={{color:'var(--accent)'}}/>
             <h2>{lang==='zh'?'访客下载权限':'Download Access'}</h2>
           </div>
           <button className="btn-icon" onClick={onClose}><X size={16}/></button>
@@ -67,7 +67,7 @@ export function GuestModal({ onClose }: Props) {
 
         {tab==='apply' && !done && (
           <form onSubmit={handleApply} style={{display:'flex',flexDirection:'column',gap:'.85rem'}}>
-            <p style={{fontSize:'.83rem',color:'var(--text2)',lineHeight:1.6,background:'rgba(255,123,53,.06)',padding:'.75rem 1rem',borderRadius:'var(--r-md)',border:'1.5px solid var(--border)'}}>
+            <p style={{fontSize:'.83rem',color:'var(--text2)',lineHeight:1.6,background:'var(--glow-rgb,rgba(45,179,106,.06)',padding:'.75rem 1rem',borderRadius:'var(--r-md)',border:'1.5px solid var(--border)'}}>
               {lang==='zh'
                 ?'申请通过后可下载音乐、乐谱和建模文件。站长会通过邮件通知你审批结果。'
                 :'After approval, you can download music, scores and model files. You will be notified via email.'}
@@ -88,7 +88,7 @@ export function GuestModal({ onClose }: Props) {
               <label>{lang==='zh'?'申请理由':'Reason'}</label>
               <textarea value={form.reason} onChange={e=>setForm(v=>({...v,reason:e.target.value}))} placeholder={lang==='zh'?'简单说说你想下载的原因…':'Why do you want to download?'}/>
             </div>
-            {err && <p style={{color:'var(--orange-a)',fontSize:'.82rem'}}>{err}</p>}
+            {err && <p style={{color:'var(--accent)',fontSize:'.82rem'}}>{err}</p>}
             <div className="modal-footer">
               <button type="button" className="btn-ghost" onClick={onClose}>{lang==='zh'?'取消':'Cancel'}</button>
               <button type="submit" className="btn-primary" disabled={saving}>
@@ -108,7 +108,7 @@ export function GuestModal({ onClose }: Props) {
                 ?'站长审批后会发邮件通知你。你的申请 ID 是：'
                 :'You will be notified by email after review. Your request ID:'}
             </p>
-            <code style={{background:'var(--bg3)',padding:'.4rem .8rem',borderRadius:'var(--r-sm)',fontSize:'.78rem',wordBreak:'break-all',display:'block',margin:'0 auto .75rem',color:'var(--orange-b)'}}>{appliedId}</code>
+            <code style={{background:'var(--bg3)',padding:'.4rem .8rem',borderRadius:'var(--r-sm)',fontSize:'.78rem',wordBreak:'break-all',display:'block',margin:'0 auto .75rem',color:'var(--accent)'}}>{appliedId}</code>
             <p style={{fontSize:'.78rem',color:'var(--text3)'}}>{lang==='zh'?'请保存此 ID 用于查询审批状态。':'Save this ID to check approval status.'}</p>
             <button className="btn-ghost" style={{marginTop:'1rem'}} onClick={()=>{setTab('check')}}>
               {lang==='zh'?'去查询状态 →':'Check status →'}
@@ -127,7 +127,7 @@ export function GuestModal({ onClose }: Props) {
               <label>{lang==='zh'?'申请 ID':'Request ID'}</label>
               <input value={appliedId} onChange={e=>setAppliedId(e.target.value)} placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"/>
             </div>
-            {err && <p style={{color:'var(--orange-a)',fontSize:'.82rem'}}>{err}</p>}
+            {err && <p style={{color:'var(--accent)',fontSize:'.82rem'}}>{err}</p>}
             {status && statusLabel(status) && (
               <div style={{background:'var(--bg3)',borderRadius:'var(--r-md)',padding:'.85rem 1rem',fontSize:'.88rem',color:statusLabel(status)!.color,fontWeight:700}}>
                 {statusLabel(status)!.text}

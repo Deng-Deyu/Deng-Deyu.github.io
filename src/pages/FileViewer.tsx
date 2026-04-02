@@ -49,7 +49,7 @@ export function FileViewer() {
   const canEdit = isAdmin && (note?.file_type==='txt'||note?.file_type==='markdown')
   const isText  = note?.file_type==='markdown'||note?.file_type==='txt'
 
-  if(loading) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh'}}><Loader size={28} className="spin" style={{color:'var(--orange-b)'}}/></div>
+  if(loading) return <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh'}}><Loader size={28} className="spin" style={{color:'var(--accent)'}}/></div>
   if(error) return (
     <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:'100vh',gap:'1rem'}}>
       <p style={{color:'var(--text2)'}}>{error}</p>
@@ -97,8 +97,8 @@ export function FileViewer() {
 
       {/* Description banner */}
       {desc && (
-        <div style={{background:'linear-gradient(135deg,rgba(255,123,53,.08),rgba(255,159,87,.04))',borderBottom:'1.5px solid var(--border)',padding:'1rem 2rem'}}>
-          <div style={{maxWidth:900,margin:'0 auto',fontSize:'.9rem',color:'var(--text2)',lineHeight:1.7,fontStyle:'italic',fontFamily:"'Klee One',cursive"}}>
+        <div style={{background:'linear-gradient(135deg,var(--glow-rgb,rgba(45,179,106,.08),var(--glow-rgb,rgba(45,179,106,.04))',borderBottom:'1.5px solid var(--border)',padding:'1rem 2rem'}}>
+          <div style={{maxWidth:900,margin:'0 auto',fontSize:'.9rem',color:'var(--text2)',lineHeight:1.7,fontStyle:'italic',fontFamily:"'Nunito',sans-serif"}}>
             {desc}
           </div>
         </div>
@@ -128,7 +128,7 @@ export function FileViewer() {
         {note?.file_key&&!['pdf','markdown','txt'].includes(note?.file_type??'')&&(
           <div style={{textAlign:'center',padding:'4rem 0'}}>
             <div style={{fontSize:'3.5rem',marginBottom:'1rem',animation:'float 3s ease-in-out infinite'}}>📎</div>
-            <p style={{color:'var(--text2)',marginBottom:'1.5rem',fontFamily:"'Klee One',cursive"}}>
+            <p style={{color:'var(--text2)',marginBottom:'1.5rem',fontFamily:"'Nunito',sans-serif"}}>
               {lang==='zh'?'此格式无法在线预览，请下载后打开。':'Cannot preview inline. Please download to open.'}
             </p>
             {note.file_key&&(
@@ -139,7 +139,7 @@ export function FileViewer() {
           </div>
         )}
         {!note?.file_key&&(
-          <div style={{textAlign:'center',padding:'4rem 0',color:'var(--text3)',fontFamily:"'Klee One',cursive"}}>
+          <div style={{textAlign:'center',padding:'4rem 0',color:'var(--text3)',fontFamily:"'Nunito',sans-serif"}}>
             {lang==='zh'?'暂无文件附件。':'No file attached yet.'}
           </div>
         )}

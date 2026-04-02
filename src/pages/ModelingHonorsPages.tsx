@@ -61,7 +61,7 @@ function HonorEditor({ item, onSave, onClose }: { item?: HonorCard; onSave:(d:Re
 
 // ── ModelingPage ──────────────────────────────────────────────────────────────
 export function ModelingPage() {
-  const { lang, isAdmin, token } = useAppStore()
+  const { lang, isAdmin, token, guestToken } = useAppStore()
   const [models, setModels]   = useState<ModelCard[]>([])
   const [view, setView]       = useState<ViewMode>('card')
   const [editing, setEditing] = useState<ModelCard|null|'new'>(null)
@@ -97,7 +97,7 @@ export function ModelingPage() {
                 <div style={{ fontSize:'.83rem',color:'var(--text2)',lineHeight:1.6,marginBottom:'.75rem' }}>{dl(m,lang)}</div>
                 <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between' }}>
                   <span className="tag">{m.software}</span>
-                  {m.file_key&&<a href={fileApi.url(m.file_key)} download className="btn-icon" style={{ width:28,height:28,borderRadius:'50%' }}><Download size={13}/></a>}
+                  {m.file_key&&(isAdmin||guestToken)&&<a href={fileApi.url(m.file_key)} download className="btn-icon" style={{ width:28,height:28,borderRadius:'50%' }}><Download size={13}/></a>}
                 </div>
               </div>
             ))}
@@ -107,13 +107,13 @@ export function ModelingPage() {
           <div className="list-view">
             {models.map(m=>(
               <div key={m.id} className="list-item">
-                <Box size={16} style={{ color:'var(--orange-b)',flexShrink:0 }}/>
+                <Box size={16} style={{ color:'var(--accent)',flexShrink:0 }}/>
                 <div style={{ flex:1,minWidth:0 }}>
                   <div style={{ fontWeight:600,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{tl(m,lang)}</div>
                   <div style={{ fontSize:'.75rem',color:'var(--text3)',fontFamily:"'Space Mono',monospace" }}>{m.software} · {fmtDate(m.updated_at)}</div>
                 </div>
                 {isAdmin&&<div style={{ display:'flex',gap:'.3rem' }}><button className="btn-icon" style={{ width:26,height:26 }} onClick={()=>setEditing(m)}><Pencil size={12}/></button><button className="btn-icon" style={{ width:26,height:26 }} onClick={()=>del(m.id)}><Trash2 size={12}/></button></div>}
-                {m.file_key&&<a href={fileApi.url(m.file_key)} download className="btn-icon" style={{ width:26,height:26 }}><Download size={12}/></a>}
+                {m.file_key&&(isAdmin||guestToken)&&<a href={fileApi.url(m.file_key)} download className="btn-icon" style={{ width:26,height:26 }}><Download size={12}/></a>}
               </div>
             ))}
             {isAdmin&&<button className="add-btn" style={{ padding:'.6rem' }} onClick={()=>setEditing('new')}><Plus size={14}/>{lang==='zh'?'添加模型':'Add model'}</button>}
@@ -156,7 +156,7 @@ export function HonorsPage() {
               <div key={h.id} style={{ background:'var(--card-bg)',border:'1px solid var(--card-border)',borderRadius:'var(--radius)',padding:'1.5rem',display:'flex',alignItems:'flex-start',gap:'1rem',backdropFilter:'blur(12px)',transition:'border-color var(--trans),box-shadow var(--trans)' }} onMouseEnter={e=>{(e.currentTarget as HTMLDivElement).style.borderColor='var(--border-h)';(e.currentTarget as HTMLDivElement).style.boxShadow='0 8px 32px var(--glow)'}} onMouseLeave={e=>{(e.currentTarget as HTMLDivElement).style.borderColor='var(--card-border)';(e.currentTarget as HTMLDivElement).style.boxShadow='none'}}>
                 <div style={{ width:48,height:48,borderRadius:'var(--radius-sm)',background:'var(--grad)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.4rem',flexShrink:0 }}>{h.emoji}</div>
                 <div style={{ flex:1 }}>
-                  <div style={{ fontFamily:"'Space Mono',monospace",fontSize:'.7rem',color:'var(--orange-b)',marginBottom:'.2rem' }}>{h.year}</div>
+                  <div style={{ fontFamily:"'Space Mono',monospace",fontSize:'.7rem',color:'var(--accent)',marginBottom:'.2rem' }}>{h.year}</div>
                   <div style={{ fontWeight:700,marginBottom:'.2rem' }}>{tl(h,lang)}</div>
                   <div style={{ fontSize:'.82rem',color:'var(--text3)' }}>{lang==='zh'?h.org_zh:h.org_en}</div>
                 </div>

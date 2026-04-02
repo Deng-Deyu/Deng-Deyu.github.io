@@ -110,7 +110,7 @@ function PlayerBar({ song, onClose, onPrev, onNext }: { song:Song|null; onClose:
       <audio ref={audioRef} onEnded={onNext} onTimeUpdate={e=>setProgress((e.currentTarget.currentTime/e.currentTarget.duration)||0)} />
       <div className={`player-bar ${song?'active':''}`}>
         {song?.cover_key && <img src={fileApi.url(song.cover_key)} style={{ width:40,height:40,borderRadius:'var(--radius-sm)',objectFit:'cover',flexShrink:0 }} alt="" />}
-        {!song?.cover_key && <div style={{ width:40,height:40,borderRadius:'var(--radius-sm)',background:'var(--bg3)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0 }}><Music2 size={18} style={{ color:'var(--orange-b)' }}/></div>}
+        {!song?.cover_key && <div style={{ width:40,height:40,borderRadius:'var(--radius-sm)',background:'var(--bg3)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0 }}><Music2 size={18} style={{ color:'var(--accent)' }}/></div>}
         <div style={{ flex:1,minWidth:0 }}>
           <div style={{ fontWeight:700,fontSize:'.88rem',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{song?tl(song,lang):''}</div>
           <div style={{ fontSize:'.75rem',color:'var(--text3)' }}>{song?.artist}</div>
@@ -134,7 +134,7 @@ function PlayerBar({ song, onClose, onPrev, onNext }: { song:Song|null; onClose:
 
 // ── Songs tab ─────────────────────────────────────────────────────────────────
 function SongsTab({ view }: { view: ViewMode }) {
-  const { lang, isAdmin, token } = useAppStore()
+  const { lang, isAdmin, token, guestToken } = useAppStore()
   const [songs, setSongs]         = useState<Song[]>([])
   const [openArtists, setOpenArtists] = useState<Record<string,boolean>>({})
   const [currentSong, setCurrentSong] = useState<Song|null>(null)
@@ -174,7 +174,7 @@ function SongsTab({ view }: { view: ViewMode }) {
                   <div className="cards-grid-2" style={{ paddingBottom:'.5rem' }}>
                     {artistSongs.map(song=>(
                       <div key={song.id} style={{ display:'flex',alignItems:'center',gap:'1rem',background:'var(--card-bg)',border:'1px solid var(--card-border)',borderRadius:'var(--radius)',padding:'1rem',backdropFilter:'blur(12px)',cursor:'pointer',transition:'border-color var(--trans)',}} onClick={()=>setCurrentSong(song)} onMouseEnter={e=>(e.currentTarget as HTMLDivElement).style.borderColor='var(--border-h)'} onMouseLeave={e=>(e.currentTarget as HTMLDivElement).style.borderColor='var(--card-border)'}>
-                        {song.cover_key?<img src={fileApi.url(song.cover_key)} style={{ width:48,height:48,borderRadius:'var(--radius-sm)',objectFit:'cover',flexShrink:0 }} alt=""/>:<div style={{ width:48,height:48,borderRadius:'var(--radius-sm)',background:'var(--bg3)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0 }}><Music2 size={20} style={{ color:'var(--orange-b)' }}/></div>}
+                        {song.cover_key?<img src={fileApi.url(song.cover_key)} style={{ width:48,height:48,borderRadius:'var(--radius-sm)',objectFit:'cover',flexShrink:0 }} alt=""/>:<div style={{ width:48,height:48,borderRadius:'var(--radius-sm)',background:'var(--bg3)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0 }}><Music2 size={20} style={{ color:'var(--accent)' }}/></div>}
                         <div style={{ flex:1,minWidth:0 }}>
                           <div style={{ fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{tl(song,lang)}</div>
                           <div style={{ fontSize:'.78rem',color:'var(--text3)',fontFamily:"'Space Mono',monospace" }}>{song.album} {song.duration?'· '+fmtDuration(song.duration):''}</div>
@@ -185,7 +185,8 @@ function SongsTab({ view }: { view: ViewMode }) {
                           <button style={{ width:32,height:32,borderRadius:'50%',background: currentSong?.id===song.id?'var(--grad)':'var(--bg3)',border:'1px solid var(--border)',color:currentSong?.id===song.id?'#fff':'var(--text2)',display:'flex',alignItems:'center',justifyContent:'center' }} onClick={()=>setCurrentSong(song)}>
                             {currentSong?.id===song.id?<Pause size={13}/>:<Play size={13}/>}
                           </button>
-                          {song.audio_key&&<a href={fileApi.url(song.audio_key)} download className="btn-icon" style={{ width:28,height:28 }} onClick={e=>e.stopPropagation()}><Download size={12}/></a>}
+                          {song.audio_key&&(isAdmin||guestToken)&&<a href={fileApi.url(song.audio_key)} download className="btn-icon" style={{ width:28,height:28 }} onClick={e=>e.stopPropagation()}><Download size={12}/></a>}
+                          {song.audio_key&&!isAdmin&&!guestToken&&<span style={{fontSize:'.65rem',color:'var(--text3)',fontFamily:"'Space Mono',monospace",whiteSpace:'nowrap'}}>{lang==='zh'?'申请后可下载':'Login to download'}</span>}
                         </div>
                       </div>
                     ))}
@@ -194,13 +195,13 @@ function SongsTab({ view }: { view: ViewMode }) {
                   <div className="list-view" style={{ paddingBottom:'.5rem' }}>
                     {artistSongs.map(song=>(
                       <div key={song.id} className="list-item" style={{ cursor:'pointer' }} onClick={()=>setCurrentSong(song)}>
-                        <Play size={14} style={{ color:'var(--orange-b)',flexShrink:0 }}/>
+                        <Play size={14} style={{ color:'var(--accent)',flexShrink:0 }}/>
                         <div style={{ flex:1,minWidth:0 }}>
                           <div style={{ fontWeight:600,fontSize:'.9rem',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{tl(song,lang)}</div>
                           <div style={{ fontSize:'.75rem',color:'var(--text3)',fontFamily:"'Space Mono',monospace" }}>{song.album} {song.duration?'· '+fmtDuration(song.duration):''}</div>
                         </div>
                         {isAdmin&&<div style={{ display:'flex',gap:'.3rem' }} onClick={e=>e.stopPropagation()}><button className="btn-icon" style={{ width:26,height:26 }} onClick={()=>setEditing(song)}><Pencil size={12}/></button><button className="btn-icon" style={{ width:26,height:26 }} onClick={()=>del(song.id)}><Trash2 size={12}/></button></div>}
-                        {song.audio_key&&<a href={fileApi.url(song.audio_key)} download className="btn-icon" style={{ width:26,height:26 }} onClick={e=>e.stopPropagation()}><Download size={12}/></a>}
+                        {song.audio_key&&(isAdmin||guestToken)&&<a href={fileApi.url(song.audio_key)} download className="btn-icon" style={{ width:26,height:26 }} onClick={e=>e.stopPropagation()}><Download size={12}/></a>}
                       </div>
                     ))}
                   </div>
@@ -227,7 +228,7 @@ const SCORE_TYPES = [
 ]
 
 function ScoresTab({ view }: { view: ViewMode }) {
-  const { lang, isAdmin, token } = useAppStore()
+  const { lang, isAdmin, token, guestToken } = useAppStore()
   const [scores, setScores]   = useState<Score[]>([])
   const [typeFilter, setType] = useState('all')
   const [editing, setEditing] = useState<Score|null|'new'>(null)
@@ -267,7 +268,7 @@ function ScoresTab({ view }: { view: ViewMode }) {
                   <span className="tag">{typeLabel(score.score_type)}</span>
                   {score.file_type&&<span className="tag tag-gray">{score.file_type.toUpperCase()}</span>}
                 </div>
-                {score.file_key&&<a href={fileApi.url(score.file_key)} download className="btn-icon" style={{ width:28,height:28,borderRadius:'50%' }}><Download size={13}/></a>}
+                {score.file_key&&(isAdmin||guestToken)&&<a href={fileApi.url(score.file_key)} download className="btn-icon" style={{ width:28,height:28,borderRadius:'50%' }}><Download size={13}/></a>}
               </div>
             </div>
           ))}
@@ -277,13 +278,13 @@ function ScoresTab({ view }: { view: ViewMode }) {
         <div className="list-view">
           {visible.map(score=>(
             <div key={score.id} className="list-item">
-              <FileMusic size={16} style={{ color:'var(--orange-b)',flexShrink:0 }}/>
+              <FileMusic size={16} style={{ color:'var(--accent)',flexShrink:0 }}/>
               <div style={{ flex:1,minWidth:0 }}>
                 <div style={{ fontWeight:600,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{tl(score,lang)}</div>
                 <div style={{ fontSize:'.75rem',color:'var(--text3)',fontFamily:"'Space Mono',monospace" }}>{score.composer?score.composer+' · ':''}{typeLabel(score.score_type)} {score.file_type?'· '+score.file_type.toUpperCase():''}</div>
               </div>
               {isAdmin&&<div style={{ display:'flex',gap:'.3rem' }}><button className="btn-icon" style={{ width:26,height:26 }} onClick={()=>setEditing(score)}><Pencil size={12}/></button><button className="btn-icon" style={{ width:26,height:26 }} onClick={()=>del(score.id)}><Trash2 size={12}/></button></div>}
-              {score.file_key&&<a href={fileApi.url(score.file_key)} download className="btn-icon" style={{ width:26,height:26 }}><Download size={12}/></a>}
+              {score.file_key&&(isAdmin||guestToken)&&<a href={fileApi.url(score.file_key)} download className="btn-icon" style={{ width:26,height:26 }}><Download size={12}/></a>}
             </div>
           ))}
           {isAdmin&&<button className="add-btn" style={{ padding:'.6rem' }} onClick={()=>setEditing('new')}><Plus size={14}/>{lang==='zh'?'添加乐谱':'Add score'}</button>}

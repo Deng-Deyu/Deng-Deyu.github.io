@@ -30,7 +30,7 @@ export function LoginModal({ onClose }: Props) {
       <div className="modal" style={{ maxWidth: 380 }}>
         <div className="modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
-            <Lock size={18} color="var(--orange-b)" />
+            <Lock size={18} color="var(--accent)" />
             <h2>{lang === 'zh' ? '管理员登录' : 'Admin Login'}</h2>
           </div>
           <button className="btn-icon" onClick={onClose}><X size={16} /></button>
@@ -47,7 +47,7 @@ export function LoginModal({ onClose }: Props) {
               autoFocus
             />
           </div>
-          {err && <p style={{ color: 'var(--orange-a)', fontSize: '.85rem' }}>{err}</p>}
+          {err && <p style={{ color: 'var(--accent)', fontSize: '.85rem' }}>{err}</p>}
           <div className="modal-footer" style={{ marginTop: 0 }}>
             <button type="button" className="btn-ghost" onClick={onClose}>
               {lang === 'zh' ? '取消' : 'Cancel'}
