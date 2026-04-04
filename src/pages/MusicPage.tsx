@@ -3,7 +3,7 @@ import { Play, Pause, Download, Plus, Pencil, Trash2, Music2, FileMusic, X, Load
 import { useAppStore } from '@/store'
 import { AnimBg } from '@/components/ui/AnimBg'
 import { Tooltip } from '@/components/ui/Tooltip'
-import { songsApi, scoresApi, fileApi, tl, fmtDuration } from '@/lib/api'
+import { songsApi, scoresApi, fileApi, tl, fmtDuration,titleFromFilename} from '@/lib/api'
 import { ViewToggle } from '@/components/ui/ViewToggle'
 import { FileUpload } from '@/components/ui/FileUpload'
 import type { Song, Score, ViewMode } from '@/types'
