@@ -190,6 +190,25 @@ export default {
         await env.BUCKET.put(file_key,new TextEncoder().encode(content),{httpMetadata:{contentType:'text/plain;charset=utf-8'}})
         return ok({},200,origin)
       }
+      // Explicit note-files and note-categories routing for safer handling
+      if(path==='/api/note-files'&&method==='GET') {
+        try {
+          return ok(await dbList('note_files',env,url),200,origin)
+        } catch (e) {
+          console.error('note_files list failed', { query: url.searchParams.toString(), error: e })
+          throw e
+        }
+      }
+      if(path==='/api/note-categories'&&method==='POST') {
+        if(!await isAdmin(request,env)) return err('Unauthorized',401,origin)
+        const body=await request.json() as Record<string,unknown>
+        try {
+          return ok({id:await dbCreate('note_categories',body,env)},201,origin)
+        } catch (e) {
+          console.error('note_categories create failed', { body, error: e })
+          throw e
+        }
+      }
       // Generic CRUD
       for(const [slug,table] of Object.entries(SLUG)) {
         if(path===`/api/${slug}`) {
