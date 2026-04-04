@@ -327,5 +327,5 @@ export function MusicPage() {
         {tab==='scores' && <ScoresTab view={view} />}
       </div>
     </div>
-  </div>
-  )
+  );
+}
