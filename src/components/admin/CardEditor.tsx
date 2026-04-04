@@ -47,6 +47,7 @@ const FIELD_MAP: Record<ContentType, FieldDef[]> = {
     { key: 'desc_en',   label_en: 'Desc (EN)',     label_zh: '描述（英文）', type: 'textarea' },
     { key: 'desc_zh',   label_en: 'Desc (ZH)',     label_zh: '描述（中文）', type: 'textarea' },
     { key: 'software',  label_en: 'Software',      label_zh: '软件',         type: 'text' },
+    { key: 'url',       label_en: 'External URL',  label_zh: '外部链接',     type: 'text' },
     { key: 'preview',   label_en: 'Preview image', label_zh: '预览图',       type: 'file', accept: '.jpg,.png,.webp' },
     { key: 'file',      label_en: 'Model file',    label_zh: '模型文件',     type: 'file', accept: '.stp,.stl,.obj,.blend,.zip' },
   ],

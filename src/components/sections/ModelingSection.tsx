@@ -24,7 +24,7 @@ export function ModelingSection() {
 
   async function handleDelete(id: string) {
     if (!confirm(lang === 'zh' ? '确认删除？' : 'Delete?')) return
-    await modelsApi.delete(token!, id)
+    await modelsApi.remove(token!, id)
     await load()
   }
 
