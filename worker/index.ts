@@ -219,7 +219,13 @@ export default {
         const key=request.headers.get('X-File-Key')
         if(!key) return err('Missing X-File-Key',400,origin)
         const ct=request.headers.get('Content-Type')||'application/octet-stream'
-        await env.BUCKET.put(key,request.body,{httpMetadata:{contentType:ct}})
+        try {
+          const data = await request.arrayBuffer()
+          await env.BUCKET.put(key,data,{httpMetadata:{contentType:ct}})
+        } catch (e) {
+          console.error('Upload failed', e)
+          return err('Upload failed',500,origin)
+        }
         return ok({file_key:key},200,origin)
       }
       // File read

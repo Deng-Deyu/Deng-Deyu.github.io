@@ -81,8 +81,16 @@ export const fileApi = {
         },
         body: file,
       })
-      return res.ok ? key : null
-    } catch { return null }
+      if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        console.error('File upload failed', res.status, text)
+        return null
+      }
+      return key
+    } catch (e) {
+      console.error('File upload error', e)
+      return null
+    }
   },
   updateText: async (token: string, file_key: string, content: string): Promise<boolean> => {
     const r = await req<void>('/api/file-update', {

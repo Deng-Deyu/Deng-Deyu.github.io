@@ -81,6 +81,10 @@ export function CardEditor({ contentType, initial = {}, onSave, onClose }: Props
     fields.filter(f => f.type !== 'file').forEach(f => {
       defaults[f.key] = (initial[f.key] as string) ?? ''
     })
+    if (contentType === 'model') {
+      defaults['preview_key'] = (initial['preview_key'] as string) ?? ''
+      defaults['file_key']    = (initial['file_key'] as string) ?? ''
+    }
     return defaults
   })
   const [files, setFiles]   = useState<Record<string, File>>({})
