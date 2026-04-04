@@ -27,7 +27,7 @@ export function LoginModal({ onClose }: Props) {
 
   return (
     <div className="modal-backdrop" onClick={e => { if (e.target === e.currentTarget) onClose() }}>
-      <div className="modal" style={{ maxWidth: 380 }}>
+      <div className="modal" style={{ maxWidth: 380, borderRadius: 'var(--r-md)' }}>
         <div className="modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
             <Lock size={18} color="var(--accent)" />
