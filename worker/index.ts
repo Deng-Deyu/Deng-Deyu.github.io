@@ -44,7 +44,7 @@ async function isApprovedGuest(req: Request, env: Env): Promise<boolean> {
 }
 const uid=()=>crypto.randomUUID()
 const now=()=>new Date().toISOString()
-const HAS_TS=['notes','songs','scores','models','honors','projects']
+const HAS_TS=['notes','songs','scores','models','honors','projects','note_files','guest_requests']
 const COLS: Record<string,string[]>={
   timeline:['year','title_en','title_zh','desc_en','desc_zh','sort_order'],
   note_categories:['parent_id','name_en','name_zh','icon','sort_order'],
