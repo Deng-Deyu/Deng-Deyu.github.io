@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { Play, Pause, Download, Plus, Pencil, Trash2, Music2, FileMusic, X, Loader, ChevronDown, ChevronRight, SkipBack, SkipForward } from 'lucide-react'
 import { useAppStore } from '@/store'
 import { AnimBg } from '@/components/ui/AnimBg'
@@ -327,5 +327,6 @@ export function MusicPage() {
         {tab==='scores' && <ScoresTab view={view} />}
       </div>
     </div>
+  </div>
   );
 }
