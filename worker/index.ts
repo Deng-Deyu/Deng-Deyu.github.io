@@ -73,8 +73,13 @@ async function dbList(table: string, env: Env, url: URL) {
   if(p('q')){ws.push('(title_en LIKE ? OR title_zh LIKE ?)');params.push(`%${p('q')}%`,`%${p('q')}%`)}
   if(ws.length) sql+=' WHERE '+ws.join(' AND ')
   const order=['timeline','note_categories','resource_links','note_files'].includes(table)?'sort_order ASC':'created_at DESC'
-  const rows=await env.DB.prepare(sql+` ORDER BY ${order}`).bind(...params).all()
-  return rows.results
+  try {
+    const rows=await env.DB.prepare(sql+` ORDER BY ${order}`).bind(...params).all()
+    return rows.results
+  } catch (e) {
+    console.error('DB list query failed', { table, sql, params, error: e })
+    throw e
+  }
 }
 async function dbCreate(table: string, body: Record<string,unknown>, env: Env): Promise<string> {
   const id=uid(), ts=now()
