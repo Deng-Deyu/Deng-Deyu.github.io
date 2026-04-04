@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Plus, Pencil, Trash2, Box, Download, X, Loader } from 'lucide-react'
+import { Plus, Pencil, Trash2, Box, X, Loader, ExternalLink } from 'lucide-react'
 import { useAppStore } from '@/store'
-import { modelsApi, honorsApi, fileApi, tl, dl, fmtDate } from '@/lib/api'
+import { AnimBg } from '@/components/ui/AnimBg'
+import { modelsApi, honorsApi, tl, dl, fmtDate } from '@/lib/api'
 import { ViewToggle } from '@/components/ui/ViewToggle'
 import { FileUpload } from '@/components/ui/FileUpload'
 import type { ModelCard, HonorCard, ViewMode } from '@/types'
@@ -9,7 +10,7 @@ import type { ModelCard, HonorCard, ViewMode } from '@/types'
 // ── Model editor ──────────────────────────────────────────────────────────────
 function ModelEditor({ item, onSave, onClose }: { item?: ModelCard; onSave:(d:Record<string,unknown>)=>Promise<void>; onClose:()=>void }) {
   const { lang } = useAppStore()
-  const [form, setForm] = useState({ title_en:item?.title_en??'',title_zh:item?.title_zh??'',desc_en:item?.desc_en??'',desc_zh:item?.desc_zh??'',software:item?.software??'',preview_key:item?.preview_key??'',file_key:item?.file_key??'' })
+  const [form, setForm] = useState({ title_en:item?.title_en??'',title_zh:item?.title_zh??'',desc_en:item?.desc_en??'',desc_zh:item?.desc_zh??'',software:item?.software??'',url:item?.url??'',preview_key:item?.preview_key??'' })
   const [saving, setSaving] = useState(false)
   async function submit(e: React.FormEvent) { e.preventDefault(); setSaving(true); await onSave(form as unknown as Record<string,unknown>); setSaving(false); onClose() }
   return (
@@ -22,8 +23,8 @@ function ModelEditor({ item, onSave, onClose }: { item?: ModelCard; onSave:(d:Re
               {k.startsWith('desc')?<textarea value={(form as Record<string,string>)[k]} onChange={e=>setForm(v=>({...v,[k]:e.target.value}))}/>:<input value={(form as Record<string,string>)[k]} onChange={e=>setForm(v=>({...v,[k]:e.target.value}))}/>}
             </div>
           ))}
-          <div className="field"><label>{lang==='zh'?'预览图':'Preview'}</label><FileUpload accept=".jpg,.png,.webp" currentKey={form.preview_key||null} onUploaded={k=>setForm(v=>({...v,preview_key:k}))}/></div>
-          <div className="field"><label>{lang==='zh'?'模型文件':'Model file'}</label><FileUpload accept=".stp,.step,.stl,.obj,.blend,.zip,.3ds,.fbx,.iges,.igs,.f3d,.x_t,.x_b,.dxf,.dwg" currentKey={form.file_key||null} onUploaded={k=>setForm(v=>({...v,file_key:k}))}/></div>
+          <div className="field"><label>{lang==='zh'?'GrabCAD / 外部链接':'GrabCAD / External URL'}</label><input value={form.url} placeholder="https://grabcad.com/library/..." onChange={e=>setForm(v=>({...v,url:e.target.value}))}/></div>
+          <div className="field"><label>{lang==='zh'?'预览图':'Preview image'}</label><FileUpload accept=".jpg,.jpeg,.png,.webp" currentKey={form.preview_key||null} onUploaded={k=>setForm(v=>({...v,preview_key:k}))}/></div>
           <div className="modal-footer">
             <button type="button" className="btn-ghost" onClick={onClose}>{lang==='zh'?'取消':'Cancel'}</button>
             <button type="submit" className="btn-primary" disabled={saving}>{saving?<Loader size={14} className="spin"/>:null}{lang==='zh'?'保存':'Save'}</button>
@@ -61,7 +62,7 @@ function HonorEditor({ item, onSave, onClose }: { item?: HonorCard; onSave:(d:Re
 
 // ── ModelingPage ──────────────────────────────────────────────────────────────
 export function ModelingPage() {
-  const { lang, isAdmin, token, guestToken } = useAppStore()
+  const { lang, isAdmin, token } = useAppStore()
   const [models, setModels]   = useState<ModelCard[]>([])
   const [view, setView]       = useState<ViewMode>('card')
   const [editing, setEditing] = useState<ModelCard|null|'new'>(null)
@@ -83,7 +84,8 @@ export function ModelingPage() {
           </div>
         </div>
       </div>
-      <div style={{ maxWidth:1200,margin:'0 auto',padding:'1.5rem 2rem 4rem' }}>
+      <AnimBg theme="modeling"/>
+      <div style={{ maxWidth:1200,margin:'0 auto',padding:'1.5rem 2rem 4rem',position:'relative',zIndex:1 }}>
         {view==='card' ? (
           <div className="cards-grid">
             {models.map(m=>(
@@ -97,7 +99,7 @@ export function ModelingPage() {
                 <div style={{ fontSize:'.83rem',color:'var(--text2)',lineHeight:1.6,marginBottom:'.75rem' }}>{dl(m,lang)}</div>
                 <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between' }}>
                   <span className="tag">{m.software}</span>
-                  {m.file_key&&(isAdmin||guestToken)&&<a href={fileApi.url(m.file_key)} download className="btn-icon" style={{ width:28,height:28,borderRadius:'50%' }}><Download size={13}/></a>}
+                  {m.url&&<a href={m.url} target="_blank" rel="noopener noreferrer" className="btn-ghost" style={{padding:'.3rem .7rem',fontSize:'.75rem',display:'inline-flex',alignItems:'center',gap:'.3rem'}}><ExternalLink size={12}/>{lang==='zh'?'查看模型':'View on GrabCAD'}</a>}
                 </div>
               </div>
             ))}
@@ -113,7 +115,7 @@ export function ModelingPage() {
                   <div style={{ fontSize:'.75rem',color:'var(--text3)',fontFamily:"'Space Mono',monospace" }}>{m.software} · {fmtDate(m.updated_at)}</div>
                 </div>
                 {isAdmin&&<div style={{ display:'flex',gap:'.3rem' }}><button className="btn-icon" style={{ width:26,height:26 }} onClick={()=>setEditing(m)}><Pencil size={12}/></button><button className="btn-icon" style={{ width:26,height:26 }} onClick={()=>del(m.id)}><Trash2 size={12}/></button></div>}
-                {m.file_key&&(isAdmin||guestToken)&&<a href={fileApi.url(m.file_key)} download className="btn-icon" style={{ width:26,height:26 }}><Download size={12}/></a>}
+                {m.url&&<a href={m.url} target="_blank" rel="noopener noreferrer" className="btn-icon" style={{width:26,height:26}}><ExternalLink size={12}/></a>}
               </div>
             ))}
             {isAdmin&&<button className="add-btn" style={{ padding:'.6rem' }} onClick={()=>setEditing('new')}><Plus size={14}/>{lang==='zh'?'添加模型':'Add model'}</button>}
@@ -149,7 +151,8 @@ export function HonorsPage() {
           </div>
         </div>
       </div>
-      <div style={{ maxWidth:1200,margin:'0 auto',padding:'1.5rem 2rem 4rem' }}>
+      <AnimBg theme="honors"/>
+      <div style={{ maxWidth:1200,margin:'0 auto',padding:'1.5rem 2rem 4rem',position:'relative',zIndex:1 }}>
         {view==='card' ? (
           <div className="honors-grid">
             {honors.map(h=>(

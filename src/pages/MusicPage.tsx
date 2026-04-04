@@ -1,11 +1,12 @@
 import { useEffect, useState, useRef } from 'react'
 import { Play, Pause, Download, Plus, Pencil, Trash2, Music2, FileMusic, X, Loader, ChevronDown, ChevronRight, SkipBack, SkipForward } from 'lucide-react'
 import { useAppStore } from '@/store'
+import { AnimBg } from '@/components/ui/AnimBg'
+import { Tooltip } from '@/components/ui/Tooltip'
 import { songsApi, scoresApi, fileApi, tl, fmtDuration } from '@/lib/api'
 import { ViewToggle } from '@/components/ui/ViewToggle'
 import { FileUpload } from '@/components/ui/FileUpload'
 import type { Song, Score, ViewMode } from '@/types'
-import { titleFromFilename } from "@/lib/api"
 
 // ── Song editor ───────────────────────────────────────────────────────────────
 function SongEditor({ item, onSave, onClose }: { item?: Song; onSave:(d:Record<string,unknown>)=>Promise<void>; onClose:()=>void }) {
@@ -179,7 +180,7 @@ function SongsTab({ view }: { view: ViewMode }) {
                         <div style={{ flex:1,minWidth:0 }}>
                           <div style={{ fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{tl(song,lang)}</div>
                           <div style={{ fontSize:'.78rem',color:'var(--text3)',fontFamily:"'Space Mono',monospace" }}>{song.album} {song.duration?'· '+fmtDuration(song.duration):''}</div>
-                        {song.review&&<div className="song-review" style={{marginTop:'.35rem'}}>{song.review}</div>}
+                        {song.review&&<Tooltip content={song.review}><span style={{fontSize:'.72rem',color:'var(--text3)',cursor:'help',fontFamily:"'ZCOOL XiaoWei',serif",display:'inline-block',marginTop:'.25rem',borderBottom:'1px dashed var(--border-h)'}}>💬 {lang==='zh'?'查看评价':'review'}</span></Tooltip>}
                         </div>
                         <div style={{ display:'flex',gap:'.3rem',flexShrink:0 }} onClick={e=>e.stopPropagation()}>
                           {isAdmin&&<><button className="btn-icon" style={{ width:28,height:28 }} onClick={()=>setEditing(song)}><Pencil size={12}/></button><button className="btn-icon" style={{ width:28,height:28 }} onClick={()=>del(song.id)}><Trash2 size={12}/></button></>}
@@ -303,7 +304,9 @@ export function MusicPage() {
   const [view, setView] = useState<ViewMode>('card')
 
   return (
-    <div className="page-wrap">
+    <div className="page-wrap" style={{position:'relative'}}>
+      <AnimBg theme="music"/>
+      <div style={{position:'relative',zIndex:1}}>
       <div className="page-header">
         <span className="section-label">// music collection</span>
         <div style={{ display:'flex',alignItems:'flex-end',justifyContent:'space-between',flexWrap:'wrap',gap:'1rem' }}>

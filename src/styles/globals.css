@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&family=Noto+Sans+SC:wght@300;400;500;700&family=Space+Mono:wght@400;700&family=ZCOOL+XiaoWei&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&family=Noto+Serif+SC:wght@300;400;500;700&family=ZCOOL+XiaoWei&family=Space+Mono:wght@400;700&display=swap');
 
 /* ─── Variables ─────────────────────────────────────────────────── */
 :root {
-  --r-sm: 10px; --r-md: 16px; --r-lg: 20px; --r-xl: 28px;
+  --r-sm: 12px; --r-md: 18px; --r-lg: 24px; --r-xl: 100px;
   --trans: 0.22s cubic-bezier(.4,0,.2,1);
   --nav-h: 60px;
   --shadow-sm: 0 1px 4px rgba(0,0,0,.06);
@@ -68,7 +68,7 @@
 *,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
 html { scroll-behavior:smooth }
 body {
-  font-family:'Nunito','Noto Sans SC',sans-serif;
+  font-family:'Nunito','ZCOOL XiaoWei','Noto Serif SC',serif;
   background:var(--bg); color:var(--text);
   line-height:1.65; overflow-x:hidden;
   transition:background var(--trans),color var(--trans);
@@ -337,4 +337,109 @@ body::before {
   .mobile-nav { display:flex }
   body { padding-bottom:68px }
   .player-bar { padding:.6rem 1.2rem }
+}
+
+/* ─── Tooltip (hover popup for desc & review) ──────────────────── */
+.tooltip-wrap {
+  position: relative; display: inline-block; width: 100%;
+}
+.tooltip-content {
+  display: none;
+  position: absolute; bottom: calc(100% + 8px); left: 50%;
+  transform: translateX(-50%);
+  min-width: 200px; max-width: 280px;
+  background: var(--bg2); border: 1px solid var(--border-h);
+  border-radius: var(--r-md); padding: .7rem .9rem;
+  font-size: .78rem; color: var(--text2); line-height: 1.6;
+  box-shadow: 0 8px 28px rgba(0,0,0,.15);
+  z-index: 80; pointer-events: none;
+  font-family: 'ZCOOL XiaoWei','Noto Serif SC',serif;
+  white-space: normal; text-align: center;
+  animation: tooltip-in .15s ease;
+}
+.tooltip-content::after {
+  content: ''; position: absolute; top: 100%; left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--border-h);
+}
+.tooltip-wrap:hover .tooltip-content { display: block; }
+@keyframes tooltip-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ─── Animated background canvases ─────────────────────────────── */
+.anim-bg {
+  position: absolute; inset: 0; overflow: hidden;
+  pointer-events: none; z-index: 0;
+}
+.anim-bg-content { position: relative; z-index: 1; }
+
+/* floating symbols base */
+.float-symbol {
+  position: absolute;
+  opacity: 0;
+  animation: float-up linear infinite;
+  user-select: none;
+  pointer-events: none;
+}
+@keyframes float-up {
+  0%   { transform: translateY(0)    rotate(0deg);   opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: .35; }
+  100% { transform: translateY(-120vh) rotate(30deg); opacity: 0; }
+}
+
+/* music notes */
+.note-symbol {
+  font-size: 1.3rem;
+  color: var(--accent);
+  filter: blur(.3px);
+}
+/* book/pen - notes page */
+.book-symbol {
+  font-size: 1.1rem;
+  color: var(--accent);
+  filter: blur(.3px);
+}
+/* wireframe geometry - modeling */
+.geo-symbol {
+  position: absolute;
+  border: 1px solid var(--accent);
+  opacity: 0;
+  animation: geo-float linear infinite;
+}
+@keyframes geo-float {
+  0%   { opacity: 0; transform: translateY(0) rotate(0deg) scale(.8); }
+  15%  { opacity: .18; }
+  85%  { opacity: .12; }
+  100% { opacity: 0; transform: translateY(-100vh) rotate(180deg) scale(1.1); }
+}
+/* code rain - projects */
+.code-symbol {
+  font-family: 'Space Mono', monospace;
+  font-size: .75rem;
+  color: var(--accent);
+  opacity: 0;
+  animation: float-up linear infinite;
+}
+/* stars - honors */
+.star-symbol {
+  font-size: 1rem;
+  color: var(--accent);
+  opacity: 0;
+  animation: star-twinkle ease-in-out infinite;
+}
+@keyframes star-twinkle {
+  0%,100% { opacity: 0; transform: scale(.6); }
+  50%     { opacity: .4; transform: scale(1.2); }
+}
+
+/* ─── Kaiti for Chinese text blocks ───────────────────────────── */
+.zh-kaiti {
+  font-family: 'ZCOOL XiaoWei','Noto Serif SC',serif;
+}
+p, .card, .list-item, .section-sub, .md-body {
+  font-family: 'Nunito','ZCOOL XiaoWei','Noto Serif SC',serif;
 }
