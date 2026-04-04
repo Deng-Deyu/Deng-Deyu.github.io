@@ -3,6 +3,7 @@
 /* ─── Variables ─────────────────────────────────────────────────── */
 :root {
   --r-sm: 12px; --r-md: 18px; --r-lg: 24px; --r-xl: 100px;
+  --radius: var(--r-md);
   --trans: 0.22s cubic-bezier(.4,0,.2,1);
   --nav-h: 60px;
   --shadow-sm: 0 1px 4px rgba(0,0,0,.06);
@@ -56,8 +57,8 @@
   --text:  #f0ebff;
   --text2: #b49fd4;
   --text3: #7a6a9a;
-  --card-bg: rgba(19,15,31,.85);
-  --card-border: rgba(168,85,247,.1);
+  --card-bg: rgba(28,22,42,.95);
+  --card-border: rgba(168,85,247,.16);
   --nav-bg: rgba(13,11,20,.92);
   --glow: rgba(168,85,247,.2);
   --input-bg: #1a1428;
